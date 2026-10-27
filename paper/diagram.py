@@ -2,6 +2,7 @@
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+plt.rcParams.update({"pdf.fonttype": 42, "ps.fonttype": 42})
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 
 BLUE, ORANGE, AQUA, INK, MUTED, PALE = "#2a78d6", "#eb6834", "#1baf7a", "#0b0b0b", "#52514e", "#f1f0ec"

@@ -2,6 +2,7 @@
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+plt.rcParams.update({"pdf.fonttype": 42, "ps.fonttype": 42})
 from matplotlib.patches import Circle, FancyArrowPatch, Rectangle
 from PIL import Image
 
