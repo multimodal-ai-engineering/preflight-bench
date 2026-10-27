@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reserve a stay</title>
+<!-- Tier 0 static control: fictional guesthouse booking form. No motion of any kind. -->
+<style>
+  html, body { width:1280px; height:800px; overflow:hidden; margin:0; }
+  * { caret-color: transparent; box-sizing: border-box; animation: none !important; transition: none !important; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.4; }
+  a { color: var(--accent); text-decoration: none; cursor: pointer; }
+  button { font: inherit; cursor: pointer; }
+  h1, h2, h3 { margin: 0; font-weight: 600; }
+  .muted { color: var(--muted); }
+  .panel { background: var(--panel); border: 1px solid var(--line); }
+
+  /* brand + nav */
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand .mark { width: 30px; height: 30px; flex: none; }
+  .brand b { font-size: 17px; letter-spacing: .02em; display: block; }
+  .brand small { font-size: 11px; color: var(--muted); display: block; }
+  .nav a { color: var(--ink); font-size: 14px; }
+  .nav a.signin { color: var(--accent); font-weight: 600; }
+
+  /* fields */
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+  .field .box { border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 8px 10px; border-radius: 6px; min-height: 36px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .field .box .val { font-weight: 600; }
+  .stepper { display: flex; align-items: center; gap: 8px; }
+  .icon { width: 24px; height: 24px; padding: 0; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 5px; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; line-height: 1; }
+  .icon svg { width: 14px; height: 14px; pointer-events: none; }
+  .btn { border: 1px solid var(--accent); color: var(--accent); background: transparent; border-radius: 6px; padding: 6px 12px; }
+  .btn.solid { background: var(--accent); color: #fff; font-weight: 600; }
+  .btn.wide { width: 100%; padding: 12px; font-size: 15px; }
+  .link { background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; font-size: 13px; }
+
+  /* photos */
+  .photo { border-radius: 8px; position: relative; overflow: hidden; }
+  .photo svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  /* rooms */
+  .room { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--panel); display: flex; gap: 12px; align-items: center; }
+  .room .sw { width: 44px; height: 44px; border-radius: 6px; flex: none; }
+  .room .info { flex: 1; min-width: 0; }
+  .room .info b { display: block; }
+  .room .info span { font-size: 12px; color: var(--muted); }
+  .room .price { font-weight: 600; white-space: nowrap; }
+  .room.sel { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+
+  /* summary */
+  .sum-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed var(--line); font-size: 13px; }
+  .sum-row.total { border-bottom: 0; font-size: 16px; font-weight: 700; padding-top: 8px; }
+  .status { font-size: 12px; color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 12px; color: var(--muted); }
+  .foot a { color: var(--muted); font-size: 12px; }
+
+  /* ===== v0: top bar, details left, summary card right ===== */
+  .v0 header { height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; background: var(--panel); border-bottom: 1px solid var(--line); }
+  .v0 header .nav { display: flex; gap: 26px; align-items: center; }
+  .v0 main { display: grid; grid-template-columns: 1fr 360px; gap: 28px; padding: 18px 40px; }
+  .v0 .left { display: flex; flex-direction: column; gap: 12px; }
+  .v0 .titlebar { display: flex; justify-content: space-between; align-items: flex-start; }
+  .v0 .titlebar h1 { font-size: 26px; }
+  .v0 .titlebar .acts { display: flex; gap: 6px; }
+  .v0 .gallery { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 6px; height: 170px; }
+  .v0 .rooms { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .v0 .rooms .room { flex-direction: column; align-items: stretch; gap: 6px; }
+  .v0 .rooms .room .sw { width: 100%; height: 26px; }
+  .v0 .fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .v0 aside { border-radius: 12px; padding: 20px; align-self: start; display: flex; flex-direction: column; gap: 10px; }
+  .v0 .foot { position: absolute; left: 40px; bottom: 14px; display: flex; gap: 18px; }
+
+  /* ===== v1: dark-ish sidebar nav on the left, stepped single column, summary strip at bottom ===== */
+  .v1 { display: flex; height: 800px; }
+  .v1 .side { width: 220px; flex: none; background: var(--panel); border-right: 1px solid var(--line); padding: 26px 20px; display: flex; flex-direction: column; gap: 24px; }
+  .v1 .side .nav { display: flex; flex-direction: column; gap: 14px; }
+  .v1 .side .nav a { padding: 4px 0; }
+  .v1 .side .foot { margin-top: 30px; padding-top: 14px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+  .v1 .content { flex: 1; padding: 26px 44px; display: flex; flex-direction: column; gap: 14px; }
+  .v1 .head { display: flex; align-items: center; gap: 18px; }
+  .v1 .head .photo { width: 120px; height: 80px; flex: none; }
+  .v1 .head h1 { font-size: 24px; }
+  .v1 .head .acts { margin-left: auto; display: flex; gap: 8px; }
+  .v1 .step { border-radius: 10px; padding: 14px 18px; }
+  .v1 .step h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 10px; }
+  .v1 .step h3 i { font-style: normal; color: var(--accent); margin-right: 6px; }
+  .v1 .rooms { display: flex; flex-direction: column; gap: 8px; }
+  .v1 .fields { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .v1 .strip { margin-top: auto; border-radius: 10px; padding: 14px 18px; display: grid; grid-template-columns: 1fr 1fr 1fr 260px; gap: 22px; align-items: center; }
+  .v1 .strip .sum-row { border: 0; flex-direction: column; padding: 0; }
+
+  /* ===== v2: no sidebar, centered narrow column, dense ===== */
+  .v2 header { height: 52px; display: flex; align-items: center; justify-content: center; gap: 60px; border-bottom: 2px solid var(--accent); background: var(--panel); }
+  .v2 header .nav { display: flex; gap: 18px; }
+  .v2 header .nav a { font-size: 13px; }
+  .v2 main { width: 640px; margin: 14px auto 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
+  .v2 .ribbon { display: flex; gap: 12px; align-items: center; border-radius: 8px; padding: 10px 14px; }
+  .v2 .ribbon .photo { width: 64px; height: 44px; flex: none; border-radius: 6px; }
+  .v2 .ribbon h1 { font-size: 18px; }
+  .v2 .ribbon .acts { margin-left: auto; display: flex; gap: 6px; }
+  .v2 .rooms { display: flex; flex-direction: column; gap: 6px; }
+  .v2 .room { padding: 6px 10px; }
+  .v2 .room .sw { width: 28px; height: 28px; }
+  .v2 .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+  .v2 .summary { border-radius: 8px; padding: 10px 14px; }
+  .v2 .summary .rows { display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px; }
+  .v2 .ctl { display: flex; gap: 12px; align-items: center; }
+  .v2 .ctl .btn.solid { flex: 1; padding: 10px; }
+  .v2 .foot { display: flex; gap: 16px; justify-content: center; }
+
+  /* ===== v3: summary column left, roomy card grid right, side header on the right edge ===== */
+  .v3 { display: grid; grid-template-columns: 330px 1fr 150px; height: 800px; }
+  .v3 .sumcol { background: var(--panel); border-right: 1px solid var(--line); padding: 28px 24px; display: flex; flex-direction: column; gap: 12px; }
+  .v3 .sumcol .photo { height: 150px; }
+  .v3 .sumcol h1 { font-size: 22px; }
+  .v3 .grid { padding: 28px 30px; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: min-content; gap: 18px; align-content: start; }
+  .v3 .grid .card { border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+  .v3 .grid .card h3 { font-size: 16px; }
+  .v3 .grid .card.full { grid-column: 1 / -1; }
+  .v3 .rooms { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .v3 .rooms .room { flex-direction: column; align-items: flex-start; padding: 14px; gap: 8px; }
+  .v3 .rooms .room .sw { width: 100%; height: 50px; }
+  .v3 .rail { border-left: 1px solid var(--line); background: var(--bg); padding: 28px 16px; display: flex; flex-direction: column; gap: 22px; }
+  .v3 .rail .nav { display: flex; flex-direction: column; gap: 14px; }
+  .v3 .rail .acts { display: flex; gap: 8px; }
+  .v3 .rail .foot { margin-top: 20px; display: flex; flex-direction: column; gap: 6px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<!--COMMON-->
+<script>
+P.init = function () {
+  const r = P.rand, el = P.el, v = P.variant % 4;
+  const app = document.getElementById('app');
+  app.className = 'v' + v;
+
+  // ---------- content (fictional) ----------
+  const place = P.pick(['Larkspur Hollow', 'Tansy Reach', 'Wrenfold', 'Sorrel Knoll']);
+  const vale = P.pick(['Ferrowmere Vale', 'Quillby Downs', 'Ashcombe Fen', 'Brindle Moor']);
+  const nights = 2 + Math.floor(r() * 4);
+  const day = 3 + Math.floor(r() * 20);
+  const month = P.pick(['Mar', 'Apr', 'May', 'Sep', 'Oct']);
+  const rooms = [
+    { id: 'room-fern', name: 'Fern room', note: 'Garden view · queen bed', price: 90 + Math.round(r() * 40), col: '#7fa37a' },
+    { id: 'room-heron', name: 'Heron loft', note: 'Skylight · twin beds', price: 120 + Math.round(r() * 40), col: '#6e8fb0' },
+    { id: 'room-tarn', name: 'Tarn suite', note: 'Lake side · king bed', price: 170 + Math.round(r() * 60), col: '#b08a5e' },
+  ];
+  const selIdx = Math.floor(r() * 3);
+  const sel = rooms[selIdx];
+  const fee = 12 + Math.round(r() * 10);
+  const total = sel.price * nights + fee;
+
+  // ---------- helpers ----------
+  function T(e, id, alt) { e.dataset.targetId = id; e.dataset.alt = alt; return e; }
+  function link(text, id, alt, cls) { const a = el('a', cls || null, text); a.href = '#'; a.addEventListener('click', ev => ev.preventDefault()); return T(a, id, alt); }
+  const SVG = {
+    heart: '<svg viewBox="0 0 16 16"><path d="M8 14 2.5 8.6A3.2 3.2 0 0 1 8 4a3.2 3.2 0 0 1 5.5 4.6Z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+    share: '<svg viewBox="0 0 16 16"><circle cx="4" cy="8" r="2" fill="currentColor"/><circle cx="12" cy="3.5" r="2" fill="currentColor"/><circle cx="12" cy="12.5" r="2" fill="currentColor"/><path d="M4 8 12 3.5M4 8l8 4.5" stroke="currentColor" stroke-width="1.3"/></svg>',
+  };
+  function iconBtn(kind, id, alt, cls) {
+    const b = el('button', 'icon ' + cls); b.innerHTML = SVG[kind]; b.title = kind; return T(b, id, alt);
+  }
+  function brand() {
+    const d = el('div', 'brand');
+    d.innerHTML = '<svg class="mark" viewBox="0 0 30 30"><rect width="30" height="30" rx="7" fill="var(--accent)"/><path d="M7 21 15 9l8 12Z" fill="#fff" opacity=".9"/></svg>';
+    const t = el('div'); t.append(el('b', null, place), el('small', null, 'Guesthouse · ' + vale)); d.append(t);
+    return d;
+  }
+  function nav() {
+    const n = el('nav', 'nav'); n.dataset.block = '';
+    n.append(link('Rooms', 'nav-rooms', 'All rooms'), link('Dining hall', 'nav-dining', 'Dining'),
+      el('a', null, 'Getting here'), link('Sign in', 'nav-signin', 'Signed in', 'signin'));
+    return n;
+  }
+  function photo(c1, c2, h) {
+    const p = el('div', 'photo');
+    p.style.background = c1;
+    p.innerHTML = `<svg viewBox="0 0 100 60" preserveAspectRatio="none"><rect y="38" width="100" height="22" fill="${c2}"/>` +
+      `<polygon points="0,38 30,16 55,38" fill="${c2}" opacity=".7"/><polygon points="40,38 70,10 100,38" fill="${c2}" opacity=".5"/>` +
+      `<circle cx="80" cy="14" r="5" fill="#fff" opacity=".7"/></svg>`;
+    if (h) p.style.height = h + 'px';
+    return p;
+  }
+  function acts() {
+    const a = el('div', 'acts'); a.dataset.block = '';
+    a.append(iconBtn('heart', 'icon-save', 'Saved', 'save'), iconBtn('share', 'icon-share', 'Shared', 'share'));
+    return a;
+  }
+  function roomCard(o, i) {
+    const c = el('div', 'room' + (i === selIdx ? ' sel' : '')); c.dataset.block = '';
+    const sw = el('div', 'sw'); sw.style.background = o.col;
+    const info = el('div', 'info');
+    info.append(el('b', null, o.name)); const n = el('span', null, o.note); n.dataset.vary = ''; info.append(n);
+    const pr = el('div', 'price'); pr.append('£'); const num = el('span', null, String(o.price)); num.dataset.vary = 'num'; pr.append(num, el('span', 'muted', ' /night'));
+    const b = el('button', 'btn' + (i === selIdx ? ' solid' : ''), i === selIdx ? 'Selected: ' + o.name.split(' ')[0] : 'Choose ' + o.name.split(' ')[0]);
+    T(b, o.id, o.name.split(' ')[0] + ' unavailable');
+    c.append(sw, info, pr, b);
+    return c;
+  }
+  function roomsBox() { const d = el('div', 'rooms'); rooms.forEach((o, i) => d.append(roomCard(o, i))); return d; }
+  function field(label, val, extra) {
+    const f = el('div', 'field'); f.append(el('label', null, label));
+    const b = el('div', 'box'); b.append(el('span', 'val', val)); if (extra) b.append(extra); f.append(b); return f;
+  }
+  function fields() {
+    const fs = el('div', 'fields');
+    const editIn = el('button', 'link', 'Change'); T(editIn, 'date-change', 'Date locked');
+    fs.append(field('Check-in', `${day} ${month}`, editIn));
+    fs.append(field('Check-out', `${day + nights} ${month}`));
+    fs.append(field('Arrival time', P.pick(['14:00', '15:30', '16:00', '17:30'])));
+    const st = el('div', 'stepper');
+    st.append(T(el('button', 'icon minus', '−'), 'guest-minus', '·'), T(el('button', 'icon plus', '+'), 'guest-plus', '±'));
+    const g = field('Guests', String(1 + Math.floor(r() * 3)) + ' adults', st);
+    g.dataset.block = ''; fs.append(g);
+    return fs;
+  }
+  function promo() {
+    const d = el('div', 'promo'); d.dataset.block = '';
+    d.style.cssText = 'display:flex;align-items:center;gap:10px;font-size:13px;';
+    const t = el('span', 'muted', 'Have a voucher from ' + P.words(2) + '?'); t.dataset.vary = '';
+    d.append(t, T(el('button', 'btn', 'Apply voucher'), 'promo-apply', 'Voucher applied'));
+    return d;
+  }
+  function chips() { const c = el('div', 'chips'); ['Breakfast', 'Wood stove', 'Bike shed', 'Quiet hours 22:00'].forEach(x => c.append(el('span', 'chip', x))); return c; }
+  function summaryRows() {
+    const w = el('div', 'rows');
+    const row = (a, b, cls) => { const d = el('div', 'sum-row' + (cls ? ' ' + cls : '')); d.append(el('span', null, a), el('span', null, b)); return d; };
+    w.append(row(sel.name, `£${sel.price} × ${nights}`), row('Service', `£${fee}`), row('Dates', `${day}–${day + nights} ${month}`), row('Total', `£${total}`, 'total'));
+    return w;
+  }
+  function reserve(cls) {
+    const b = el('button', 'btn solid ' + (cls || ''), 'Reserve stay');
+    b.dataset.actionId = 'reserve';
+    return T(b, 'reserve', 'Reserve unavailable');
+  }
+  function status() { const s = el('div', 'status', 'Not yet reserved · free cancellation'); s.id = 'status'; return s; }
+  function policy() { const d = el('div'); d.dataset.block = ''; d.style.fontSize = '13px'; d.append(link('Cancellation policy', 'policy', 'Policy updated')); return d; }
+  function foot() {
+    const f = el('div', 'foot'); f.dataset.block = ''; f.append(link('Help desk', 'foot-help', 'Help closed'), link('House rules', 'foot-rules', 'Rules revised'), el('a', null, '© ' + place));
+    return f;
+  }
+  function about(n) { const p = el('p', 'muted'); p.style.margin = '0'; p.textContent = P.sentence(n); return p; }
+
+  // ---------- layouts ----------
+  if (v === 0) {
+    const h = el('header'); h.append(brand(), nav()); app.append(h);
+    const m = el('main'); const L = el('div', 'left');
+    const tb = el('div', 'titlebar'); const tt = el('div'); tt.append(el('h1', null, 'Book your stay'), el('div', 'muted', vale + ' · ' + nights + ' nights')); tb.append(tt, acts());
+    const g = el('div', 'gallery'); g.append(photo('#9fb7c9', '#5f7d62'), photo('#c9b49f', '#7d6a5f'), photo('#b3c9a0', '#55704a'));
+    L.append(tb, g, roomsBox(), fields(), promo());
+    const A = el('aside', 'panel'); A.append(el('h2', null, 'Your stay'), summaryRows(), policy(), reserve('wide'), status());
+    m.append(L, A); app.append(m, foot());
+  } else if (v === 1) {
+    const s = el('div', 'side'); s.append(brand(), nav(), foot()); app.append(s);
+    const c = el('div', 'content');
+    const hd = el('div', 'head'); const tt = el('div'); tt.append(el('h1', null, 'Reserve at ' + place), el('div', 'muted', about(8).textContent));
+    hd.append(photo('#a9c0b8', '#4f6e66', 80), tt, acts());
+    const s1 = el('div', 'step panel'); s1.innerHTML = '<h3><i>1</i>Pick a room</h3>'; s1.append(roomsBox());
+    const s2 = el('div', 'step panel'); s2.innerHTML = '<h3><i>2</i>Dates and guests</h3>'; s2.append(fields());
+    const s3 = el('div', 'step panel'); s3.innerHTML = '<h3><i>3</i>Extras</h3>'; s3.style.display = 'flex'; s3.style.alignItems = 'center'; s3.style.justifyContent = 'space-between';
+    s3.firstChild.style.margin = '0'; s3.append(promo(), policy());
+    const strip = el('div', 'strip panel');
+    const rows = summaryRows(); Array.from(rows.children).slice(0, 3).forEach(x => strip.append(x));
+    const last = el('div'); last.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
+    last.append(el('b', null, 'Total £' + total), reserve('wide'), status()); strip.append(last);
+    c.append(hd, s1, s2, s3, strip); app.append(c);
+  } else if (v === 2) {
+    const h = el('header'); h.append(brand(), nav()); app.append(h);
+    const m = el('main');
+    const rb = el('div', 'ribbon panel'); const tt = el('div'); tt.append(el('h1', null, place + ' booking'), el('div', 'muted', vale));
+    rb.append(photo('#d0b8a0', '#836247', 44), tt, acts());
+    const sm = el('div', 'summary panel'); sm.append(summaryRows());
+    const ctl = el('div', 'ctl'); ctl.append(status(), reserve()); const ctlWrap = el('div'); ctlWrap.append(ctl);
+    m.append(rb, roomsBox(), fields(), promo(), chips(), sm, policy(), ctlWrap, foot());
+    app.append(m);
+  } else {
+    const sc = el('div', 'sumcol');
+    sc.append(brand(), photo('#9cb0c6', '#4a5f78', 150), el('h1', null, 'Your stay at ' + place), about(12), summaryRows(), reserve('wide'), status(), policy());
+    const g = el('div', 'grid');
+    const c1 = el('div', 'card panel full'); c1.append(el('h3', null, 'Choose a room'), roomsBox());
+    const c2 = el('div', 'card panel full'); c2.append(el('h3', null, 'When are you coming?'), fields()); c2.querySelector('.fields').style.cssText = 'display:grid;grid-template-columns:repeat(4,1fr);gap:14px;';
+    const c3 = el('div', 'card panel'); c3.append(el('h3', null, 'Vouchers'), promo());
+    const c4 = el('div', 'card panel'); c4.append(el('h3', null, 'In every room'), chips());
+    g.append(c1, c2, c3, c4);
+    const rl = el('div', 'rail'); rl.append(nav(), acts(), foot());
+    app.append(sc, g, rl);
+  }
+
+  // 'moved': the default spacer would land inside a horizontal row (header, title bar) and push the target
+  // sideways or not at all. Climb out of flex rows first so the spacer pushes the whole row down.
+  P.hooks.moveTarget = function (t, h, rr) {
+    let x = t.closest('[data-block]') || t;
+    const isRow = e => { const cs = getComputedStyle(e); return cs.display.includes('flex') && cs.flexDirection.startsWith('row'); };
+    while (x.parentElement && x.parentElement !== app && isRow(x.parentElement)) x = x.parentElement;
+    const s = el('div', 'pf-inserted');
+    s.style.cssText = `height:${h}px;flex:none;box-sizing:border-box;background:var(--panel);border:1px solid var(--line);color:var(--muted);` +
+      `border-radius:6px;margin:0 0 8px 0;padding:8px 12px;font-size:13px;overflow:hidden;grid-column:1/-1;`;
+    s.textContent = P.pick(['Update available. ', 'Section expanded. ', 'New items below. ', 'Notice: '], rr) + P.sentence(10, rr);
+    x.parentNode.insertBefore(s, x);
+  };
+
+  P.action = { id: 'reserve', smallLabel: 'Reserved ✓', panelText: 'Stay reserved at ' + place + '.', smallSel: v === 2 ? '#status' : undefined };
+};
+</script>
+</body>
+</html>

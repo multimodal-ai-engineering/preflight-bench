@@ -1,0 +1,16 @@
+kind,cond,steps,miss_rate
+live_canvas,a,80,0.0
+live_canvas,b,80,0.0
+live_canvas,c,80,0.0
+live_map,a,80,0.0375
+live_map,b,80,0.0125
+live_map,c,80,0.0375
+live_market,a,80,0.1875
+live_market,b,80,0.2125
+live_market,c,80,0.1875
+live_newsfeed,a,80,0.0
+live_newsfeed,b,80,0.0
+live_newsfeed,c,80,0.0375
+live_notes,a,80,0.2
+live_notes,b,80,0.2
+live_notes,c,80,0.1125

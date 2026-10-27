@@ -1,0 +1,13 @@
+{
+  "theta": {
+    "pixel": Infinity,
+    "qwen3-vl-2b": 1.0,
+    "qwen3-vl-4b": 1.0,
+    "claude-haiku-5-5": 1.0,
+    "claude-opus-5-5": 1.0
+  },
+  "fa_max": 0.02,
+  "region_pad": 24,
+  "diff_thr": 20,
+  "tuned_on": "dev worked set (100 pairs)"
+}

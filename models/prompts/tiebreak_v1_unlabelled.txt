@@ -1,0 +1,2 @@
+The first image shows a UI element in its surrounding context, from an earlier screenshot. The next {n} images are numbered candidate crops (1 to {n}) from the current screen.
+Which numbered crop shows the same element, in the same context, as the first image? Answer {{"choice": {choices}|null, "confidence": 0-1}}. JSON only.

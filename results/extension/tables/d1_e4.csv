@@ -1,0 +1,3 @@
+comparison,a_only_miss,other_only_miss,p,predicted_direction,p_holm,significant,holds
+a vs c,9,5,0.4239501953125,True,0.847900390625,False,False
+a vs b,9,9,1.0,False,1.0,False,False

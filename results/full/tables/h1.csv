@@ -1,0 +1,10 @@
+question,tier,small_check,dev_recall,n_pairs,positives,frontier_has_2pct_point,small_recall_native,small_fa_native,frontier_recall_native,frontier_fa_native,small_recall,frontier_recall,diff,diff_lo95_onesided,p,p_holm,non_inferior,h1_cell
+settled,0,pixel,0.9175257731958762,284,193,False,0.8704663212435233,0.02197802197802198,0.7927461139896373,0.03296703296703297,0.9067357512953368,0.0,0.9067357512953368,0.8556701030927835,0.0,0.0,True,uninformative (Opus has no 2% FA point)
+settled,1,pixel,0.0,1420,1064,False,0.8176691729323309,0.042134831460674156,0.8270676691729323,0.12359550561797752,0.0,0.0,0.0,0.0,0.0,0.0,True,uninformative (Opus has no 2% FA point)
+settled,2,pixel,0.0,588,442,False,0.8122171945701357,0.04794520547945205,0.7986425339366516,0.1232876712328767,0.0,0.0,0.0,0.0,0.0,0.0,True,uninformative (Opus has no 2% FA point)
+dialog,0,pixel,1.0,284,100,False,0.5,0.0,1.0,0.08152173913043478,0.5,0.0,0.5,0.0,0.0,0.0,True,uninformative (Opus has no 2% FA point)
+dialog,1,pixel,0.982,1420,500,False,0.724,0.011956521739130435,1.0,0.06956521739130435,0.724,0.0,0.724,0.564,0.0,0.0,True,uninformative (Opus has no 2% FA point)
+dialog,2,pixel,0.9863013698630136,588,206,False,0.6601941747572816,0.007853403141361256,1.0,0.08115183246073299,0.6601941747572816,0.0,0.6601941747572816,0.4784478935698448,0.0,0.0,True,uninformative (Opus has no 2% FA point)
+worked,0,pixel,1.0,250,124,True,1.0,0.0,1.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0,True,non-inferior
+worked,2,qwen3-vl-4b,1.0,282,144,True,1.0,0.028985507246376812,1.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0,True,non-inferior
+worked,1,qwen3-vl-2b,1.0,300,139,True,0.9712230215827338,0.012422360248447204,1.0,0.0,0.9712230215827338,1.0,-0.02877697841726623,-0.06299212598425197,0.63,0.63,False,not shown

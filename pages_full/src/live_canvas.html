@@ -1,0 +1,436 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Sketchboard</title>
+<style>
+html, body { width:1280px; height:800px; overflow:hidden; margin:0 }
+* { caret-color: transparent; box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 13px; position: relative; }
+#app { position: absolute; left: 0; top: 0; width: 1280px; height: 800px; display: flex; }
+.col { flex-direction: column; }
+.row { display: flex; flex: 1; min-height: 0; }
+.stage { flex: 1; min-width: 0; min-height: 0; position: relative; display: flex; }
+.frame { flex: 1; position: relative; overflow: hidden; background: var(--panel); }
+canvas { display: block; }
+button { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; cursor: pointer; padding: 0; }
+button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.tb { background: var(--panel); display: flex; gap: 8px; }
+.tb .grp { display: flex; gap: 6px; }
+.tb.v { flex-direction: column; padding: 12px 8px; border-right: 1px solid var(--line); width: 74px; flex: none; overflow: hidden; }
+.tb.v .grp { flex-direction: column; }
+.tb.v button { width: 56px; height: 38px; font-size: 12px; }
+.tb.h { flex-direction: row; align-items: center; padding: 0 14px; height: 54px; border-bottom: 1px solid var(--line); }
+.tb.h button { height: 34px; padding: 0 14px; font-size: 13px; }
+.tb .sep { background: var(--line); }
+.tb.v .sep { height: 1px; margin: 4px 0; }
+.tb.h .sep { width: 1px; height: 26px; margin: 0 4px; }
+.tb .status { color: var(--muted); font-size: 11px; text-align: center; }
+.tb.h .status { font-size: 12px; margin-left: 4px; }
+.tb.float { position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); height: 60px; border: 1px solid var(--line); border-radius: 30px; padding: 0 18px; box-shadow: 0 6px 22px rgba(0,0,0,.18); z-index: 5; }
+.tb.right { border-right: 0; border-left: 1px solid var(--line); }
+.tb .pf-skeleton { min-width: 56px; min-height: 30px; }
+.tb.h .pf-skeleton { width: 180px; margin: 0 !important; }
+.tb .pf-inserted { margin: 0 !important; font-size: 11px; padding: 4px 6px !important; }
+.layers { background: var(--panel); padding: 14px 12px; overflow: hidden; display: flex; flex-direction: column; gap: 6px; }
+.layers.right { width: 236px; border-left: 1px solid var(--line); }
+.layers.left { width: 214px; border-right: 1px solid var(--line); }
+.layers h4 { margin: 0 0 6px 0; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.lrow { display: flex; align-items: center; gap: 8px; padding: 6px 6px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); }
+.lrow .sw { width: 12px; height: 12px; border-radius: 3px; flex: none; }
+.lrow .nm { flex: 1; overflow: hidden; white-space: nowrap; }
+.lrow .cnt { color: var(--muted); font-size: 11px; }
+.lrow button { font-size: 11px; height: 26px; padding: 0 8px; }
+.layers .add { margin-top: 4px; height: 32px; font-size: 12px; }
+.layers .meta { margin-top: auto; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.hdr { height: 46px; flex: none; display: flex; align-items: center; gap: 12px; padding: 0 16px; background: var(--panel); border-bottom: 1px solid var(--line); }
+.hdr .title { font-weight: bold; font-size: 15px; }
+.hdr .sub { color: var(--muted); font-size: 12px; }
+.hdr .sp { flex: 1; }
+.hdr button { height: 32px; padding: 0 16px; }
+.hdr .status { color: var(--muted); font-size: 12px; }
+.chip { position: absolute; left: 16px; top: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; z-index: 5; box-shadow: 0 3px 12px rgba(0,0,0,.12); }
+.chip b { margin-right: 8px; }
+.chip span { color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<!--COMMON-->
+<script>
+(function () {
+  const V = P.variant % 4;
+  const R = P.mulberry32(P.seed * 4441 + 17);   // layout/content stream
+  const RM = P.mulberry32(P.seed * 6151 + 29);  // motion stream (cursor, stroke, arrange)
+  const el = P.el;
+  const lv = (a, b, c) => { const x = P.level(a, b, c); return x == null ? 0 : x; };
+  const CURSOR_SPEED = lv(70, 220, 460);       // px/s
+  const STROKE_SPEED = lv(14, 40, 90);         // points/s
+  const ARRANGE_MS = lv(7000, 3800, 2000);     // auto-arrange interval (0 = off)
+  const PAN_SPEED = lv(3, 8, 16);              // background grid drift, px/s
+
+  let canvas, ctx, W = 0, H = 0, safe;
+  const objs = [];          // render state
+  const copies = {};        // virtual id -> list of lookalike objects
+  const vmap = {};          // virtual id -> {obj, part}
+  let cells = [], cw = 0, ch = 0;
+  const cursor = { x: 0, y: 0, tx: 0, ty: 0, name: P.name(R) };
+  const stroke = { pts: [], k: 0, hold: 0 };
+  let panX = 0, panY = 0, lastTick = 0, nextArrange = 0;
+
+  const NOTE_COLORS = ['#fde68a', '#bfe3c8', '#f9c6c9', '#c7d7fb', '#f5d3a6'];
+  const LAYERS = [['Notes', '#e7b93a'], ['Shapes', '#5b8def'], ['Sketch', '#d0605e'], ['Comments', '#4aa37a'], ['Backdrop', '#9a8f84']];
+
+  function btn(text, id, alt, cls) {
+    const b = el('button', cls || null, text);
+    if (id) { b.dataset.targetId = id; b.dataset.alt = alt; }
+    return b;
+  }
+  function toolbar(kind, withExport) {
+    const tb = el('div', 'tb ' + kind);
+    const g1 = el('div', 'grp'); g1.dataset.block = 'tools';
+    [['Pen', 'tool-pen', 'Pen tool'], ['Shape', 'tool-shape', 'Shape tool'], ['Text', 'tool-text', 'Text tool'], ['Erase', 'tool-erase', 'Eraser tool']]
+      .forEach(([t, id, a], i) => { const b = btn(t, id, a); if (i === 0) b.classList.add('on'); b.addEventListener('click', () => { g1.querySelectorAll('button').forEach(x => x.classList.remove('on')); b.classList.add('on'); }); g1.append(b); });
+    const g2 = el('div', 'grp'); g2.dataset.block = 'history';
+    g2.append(btn('Undo', 'tool-undo', 'Undo last change'), btn('Redo', 'tool-redo', 'Redo change'));
+    tb.append(g1, el('div', 'sep'), g2);
+    if (withExport) {
+      tb.append(el('div', 'sep'));
+      const g3 = el('div', 'grp'); g3.dataset.block = 'export';
+      const ex = el('button', 'primary', 'Export'); ex.dataset.actionId = 'export';
+      const st = el('div', 'status', 'Draft'); st.id = 'exportStatus';
+      g3.append(ex, st); tb.append(g3);
+    }
+    return tb;
+  }
+  function layersPanel(side) {
+    const p = el('div', 'layers ' + side);
+    p.append(el('h4', null, 'Layers'));
+    LAYERS.forEach(([n, c]) => {
+      const row = el('div', 'lrow'); row.dataset.block = 'layer-' + n.toLowerCase();
+      const sw = el('div', 'sw'); sw.style.background = c;
+      const b = btn('Hide ' + n.toLowerCase(), 'layer-' + n.toLowerCase(), 'Hide the ' + n.toLowerCase() + ' layer');
+      row.append(sw, el('div', 'nm', n), el('div', 'cnt', String(2 + Math.floor(R() * 9))), b);
+      p.append(row);
+    });
+    const add = btn('+ Add layer', 'layer-add', 'Add a new layer', 'add'); add.dataset.block = 'layer-add';
+    p.append(add);
+    const meta = el('div', 'meta');
+    meta.append(el('div', null, 'Board: ' + P.words(2, R)), el('div', null, 'Owner: ' + P.name(R)), el('div', null, 'Autosave on'));
+    p.append(meta);
+    return p;
+  }
+  function stage(framed) {
+    const s = el('div', 'stage');
+    const f = el('div', 'frame');
+    if (framed === 1) { s.style.padding = '18px'; f.style.border = '1px solid var(--line)'; f.style.borderRadius = '10px'; }
+    if (framed === 2) { s.style.padding = '14px'; f.style.border = '3px solid var(--line)'; f.style.borderRadius = '16px'; s.style.background = 'var(--bg)'; }
+    canvas = el('canvas'); f.append(canvas); s.append(f);
+    return [s, f];
+  }
+
+  function buildLayout() {
+    const app = document.getElementById('app');
+    let frame;
+    if (V === 0) {        // toolbar left vertical, layers right, framed canvas
+      const [s, f] = stage(1); frame = f;
+      app.append(toolbar('v', true), s, layersPanel('right'));
+    } else if (V === 1) { // toolbar top horizontal, layers left, full-bleed canvas
+      app.classList.add('col');
+      const row = el('div', 'row');
+      const [s, f] = stage(0); frame = f;
+      row.append(layersPanel('left'), s);
+      const tb = toolbar('h', true);
+      tb.prepend(el('b', null, 'Board'), el('div', 'sep'));
+      app.append(tb, row);
+    } else if (V === 2) { // full-screen canvas, floating bottom toolbar, no layers panel
+      const [s, f] = stage(0); frame = f;
+      app.append(s);
+      const tb = toolbar('h float', true);
+      s.append(tb);
+      const chip = el('div', 'chip'); chip.append(el('b', null, 'Board'), el('span', null, P.words(2, R) + ' · 3 editing'));
+      s.append(chip);
+    } else {              // header with export, layers left, framed canvas, toolbar right vertical
+      app.classList.add('col');
+      const hdr = el('div', 'hdr');
+      hdr.append(el('div', 'title', 'Board'), el('div', 'sub', P.words(2, R) + ' · edited just now'), el('div', 'sp'));
+      const st = el('div', 'status', 'Draft'); st.id = 'exportStatus';
+      const ex = el('button', 'primary', 'Export'); ex.dataset.actionId = 'export';
+      hdr.append(st, ex);
+      const row = el('div', 'row');
+      const [s, f] = stage(2); frame = f;
+      const tb = toolbar('v right', false);
+      row.append(layersPanel('left'), s, tb);
+      app.append(hdr, row);
+    }
+    W = frame.clientWidth; H = frame.clientHeight;
+    canvas.width = W; canvas.height = H;
+    canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+    ctx = canvas.getContext('2d');
+    safe = V === 2 ? [14, 66, W - 14, H - 104] : [12, 12, W - 12, H - 12];
+  }
+
+  // ---------- render state ----------
+  function makeCells() {
+    const sw = safe[2] - safe[0], sh = safe[3] - safe[1];
+    const cols = Math.max(3, Math.floor(sw / 220)), rows = Math.max(3, Math.floor(sh / 190));
+    cw = sw / cols; ch = sh / rows;
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) cells.push({ x: safe[0] + c * cw, y: safe[1] + r * ch, used: null });
+    for (let i = cells.length - 1; i > 0; i--) { const j = Math.floor(R() * (i + 1)); [cells[i], cells[j]] = [cells[j], cells[i]]; }
+  }
+  function placeIn(cell, o, r) {
+    o.x = Math.round(cell.x + 6 + (cw - o.w - 12) * r());
+    o.y = Math.round(cell.y + 6 + (ch - o.h - 12) * r());
+    cell.used = o; o.cell = cell;
+  }
+  function freeCell() { return cells.find(c => !c.used); }
+
+  function noteText(r) { return [P.words(2, r), P.words(2, r), P.words(1, r)]; }
+  function addTargets() {
+    let ci = 0;
+    for (let k = 1; k <= 3; k++) {
+      const o = { kind: 'note', w: 164, h: 128, color: NOTE_COLORS[(k + Math.floor(R() * 5)) % 5], lines: noteText(R), author: P.name(R).split(' ')[0], vid: 'vt-note-' + k + '-done' };
+      placeIn(cells[ci++], o, R); objs.push(o);
+    }
+    const rect = { kind: 'rect', w: 156, h: 100, color: '#5b8def', label: P.words(2, R), selected: true, vid: 'vt-shape-handle' };
+    placeIn(cells[ci++], rect, R); objs.push(rect);
+    const card = { kind: 'card', w: 184, h: 112, color: '#4aa37a', title: P.sentence(3, R).replace('.', ''), votes: 1 + Math.floor(R() * 6), vid: 'vt-card-vote' };
+    placeIn(cells[ci++], card, R); objs.push(card);
+    // decorative (auto-arranged) objects: no targets on them
+    const decos = [{ kind: 'ellipse', w: 140, h: 86, color: '#d0605e', label: P.words(1, R) },
+      { kind: 'label', w: 170, h: 40, label: P.words(3, R) },
+      { kind: 'diamond', w: 110, h: 96, color: '#9a6fd0' }];
+    decos.forEach(o => { o.deco = true; placeIn(cells[ci++], o, R); objs.push(o); });
+    objs.filter(o => o.vid).forEach(o => registerVirtual(o.vid, o));
+  }
+  // target part of an object, in canvas coordinates
+  function partBox(o) {
+    if (o.kind === 'note') return o.done ? null : [o.x + o.w - 32, o.y + 6, 26, 26];
+    if (o.kind === 'rect') return o.selected ? [o.x + o.w - 8, o.y + o.h - 8, 16, 16] : null;
+    if (o.kind === 'card') return [o.x + 12, o.y + o.h - 34, 58, 24];
+    return null;
+  }
+  function toPage(b) {
+    if (!b) return null;
+    const c = canvas.getBoundingClientRect();
+    return [c.left + b[0], c.top + b[1], b[2], b[3]];
+  }
+  function registerVirtual(id, o) {
+    vmap[id] = o;
+    P.virtual[id] = {
+      canvas,
+      box: () => (o.gone || o.loading) ? null : toPage(partBox(o)),
+      valid: () => !o.gone && !o.loading && !!partBox(o),
+    };
+  }
+
+  // ---------- events on virtual targets ----------
+  function inSafe(o) { return o.x >= safe[0] && o.y >= safe[1] && o.x + o.w <= safe[2] && o.y + o.h <= safe[3]; }
+  P.hooks.moveVirtual = function (id, r) {
+    const o = vmap[id]; if (!o) return;
+    const d = Math.round(P.between(10, 300, r));
+    const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1], [.7, .7], [-.7, .7], [.7, -.7], [-.7, -.7]];
+    const start = Math.floor(r() * dirs.length);
+    const ox = o.x, oy = o.y;
+    for (let i = 0; i < dirs.length * 2; i++) {
+      const [dx, dy] = dirs[(start + i) % dirs.length];
+      const dd = i < dirs.length ? d : Math.max(10, Math.round(d / 3));
+      o.x = Math.round(ox + dx * dd); o.y = Math.round(oy + dy * dd);
+      if (inSafe(o)) return;
+    }
+    o.x = ox; o.y = Math.max(safe[1], oy - 12);
+  };
+  P.hooks.lookalikeVirtual = function (id, r) {
+    const o = vmap[id]; if (!o) return;
+    const c = Object.assign({}, o, { copy: true, vid: null });
+    const cell = freeCell();
+    if (cell) placeIn(cell, c, r);
+    else { c.x = Math.round(P.between(safe[0], safe[2] - c.w, r)); c.y = Math.round(P.between(safe[1], safe[3] - c.h, r)); }
+    (copies[id] = copies[id] || []).push(c);
+  };
+  P.hooks.virtualLookalikes = function (id) {
+    return (copies[id] || []).map(c => toPage(partBox(c))).filter(Boolean);
+  };
+  P.hooks.goneVirtual = function (id, r) {
+    const o = vmap[id]; if (!o) return;
+    const kind = P.pick(['removed', 'resolved'], r);
+    if (kind === 'removed') o.gone = true;
+    else if (o.kind === 'note') o.done = true;
+    else if (o.kind === 'rect') o.selected = false;
+    else o.gone = true;
+    document.documentElement.dataset.goneKind = kind;
+  };
+  // Workaround: the shared slow_load only knows DOM targets. For a canvas target, the object is
+  // replaced by a loading placeholder for slow_ms and comes back slightly shifted.
+  const domSlow = P.events.slow_load;
+  P.events.slow_load = function (r) {
+    const id = window.__pfTarget || P.Q.get('target');
+    const o = vmap[id];
+    if (!o) return domSlow(r);
+    o.loading = true;
+    const back = parseFloat(P.Q.get('slow_ms') || '3000');
+    const dy = Math.round(P.between(-10, 40, r));
+    setTimeout(() => { o.loading = false; o.y = Math.max(safe[1], Math.min(safe[3] - o.h, o.y + dy)); }, back);
+  };
+  // DOM moves: toolbars are flex rows/columns, so insert a compact notice that shifts the target.
+  P.hooks.moveTarget = function (t, h, r) {
+    const b = t.closest('[data-block]') || t;
+    const s = el('div', 'pf-inserted');
+    const tb = t.closest('.tb');
+    s.style.cssText = 'box-sizing:border-box;background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:6px;' +
+      'padding:6px 8px;font-size:12px;overflow:hidden;flex:none;';
+    if (tb && tb.classList.contains('h')) { s.style.width = Math.max(12, Math.min(h, 220)) + 'px'; s.style.height = '30px'; s.style.whiteSpace = 'nowrap'; }
+    else if (tb) { s.style.height = Math.max(12, Math.min(h, 160)) + 'px'; }
+    else { s.style.height = h + 'px'; }
+    s.textContent = P.pick(['Tip: ', 'New: ', 'Synced. '], r) + P.sentence(6, r);
+    b.parentNode.insertBefore(s, b);
+  };
+
+  // ---------- motion ----------
+  function newWaypoint() {
+    cursor.tx = P.between(safe[0] + 10, safe[2] - 60, RM);
+    cursor.ty = P.between(safe[1] + 10, safe[3] - 30, RM);
+  }
+  function newStroke() {
+    const pts = [];
+    let x = P.between(safe[0] + 80, safe[2] - 80, RM), y = P.between(safe[1] + 60, safe[3] - 60, RM);
+    let a = RM() * Math.PI * 2;
+    for (let i = 0; i < 70; i++) {
+      a += (RM() - .5) * 0.7;
+      x = Math.max(safe[0] + 6, Math.min(safe[2] - 6, x + Math.cos(a) * 7));
+      y = Math.max(safe[1] + 6, Math.min(safe[3] - 6, y + Math.sin(a) * 7));
+      pts.push([x, y]);
+    }
+    stroke.pts = pts; stroke.k = 0; stroke.hold = 0;
+  }
+  function arrange() {
+    const decos = objs.filter(o => o.deco && !o.anim);
+    if (!decos.length) return;
+    const o = P.pick(decos, RM);
+    const cell = cells.filter(c => !c.used)[Math.floor(RM() * cells.filter(c => !c.used).length)];
+    if (!cell) return;
+    o.cell.used = null;
+    const fx = o.x, fy = o.y;
+    placeIn(cell, o, RM);
+    o.anim = { fx, fy, tx: o.x, ty: o.y, t: 0 };
+    o.x = fx; o.y = fy;
+    panX += 18; panY += 6;  // board nudges as it re-arranges
+  }
+  function update(now) {
+    const dt = lastTick ? Math.min(0.1, (now - lastTick) / 1000) : 0.016;
+    lastTick = now;
+    if (CURSOR_SPEED) {
+      const dx = cursor.tx - cursor.x, dy = cursor.ty - cursor.y, d = Math.hypot(dx, dy), step = CURSOR_SPEED * dt;
+      if (d <= step) { cursor.x = cursor.tx; cursor.y = cursor.ty; newWaypoint(); }
+      else { cursor.x += dx / d * step; cursor.y += dy / d * step; }
+    }
+    if (STROKE_SPEED) {
+      if (stroke.k < stroke.pts.length) stroke.k = Math.min(stroke.pts.length, stroke.k + STROKE_SPEED * dt);
+      else if ((stroke.hold += dt) > 0.9) newStroke();
+    }
+    panX += PAN_SPEED * dt; panY += PAN_SPEED * 0.4 * dt;
+    if (ARRANGE_MS && now - P.t0 >= nextArrange) { if (nextArrange > 0) arrange(); nextArrange += ARRANGE_MS; }
+    objs.forEach(o => {
+      if (!o.anim) return;
+      o.anim.t = Math.min(1, o.anim.t + dt / 0.5);
+      const e = o.anim.t * o.anim.t * (3 - 2 * o.anim.t);
+      o.x = o.anim.fx + (o.anim.tx - o.anim.fx) * e; o.y = o.anim.fy + (o.anim.ty - o.anim.fy) * e;
+      if (o.anim.t >= 1) { o.x = o.anim.tx; o.y = o.anim.ty; o.anim = null; }
+    });
+  }
+
+  // ---------- drawing ----------
+  const T = P.theme, FONT = T.font;
+  function rr(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+  function drawObj(o) {
+    if (o.gone) return;
+    const x = Math.round(o.x), y = Math.round(o.y);
+    if (o.loading) { ctx.fillStyle = T.line; rr(x, y, o.w, o.h, 8); ctx.fill(); ctx.fillStyle = T.muted; ctx.font = '12px ' + FONT; ctx.fillText('Loading…', x + 12, y + 22); return; }
+    ctx.save();
+    if (o.kind === 'note') {
+      ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.fillRect(x + 3, y + 4, o.w, o.h);
+      ctx.fillStyle = o.color; ctx.fillRect(x, y, o.w, o.h);
+      ctx.fillStyle = '#2a2a2a'; ctx.font = 'bold 14px ' + FONT; ctx.fillText(o.lines[0], x + 12, y + 26);
+      ctx.font = '13px ' + FONT; ctx.fillText(o.lines[1], x + 12, y + 50); ctx.fillText(o.lines[2], x + 12, y + 70);
+      ctx.fillStyle = '#6a6458'; ctx.font = '11px ' + FONT; ctx.fillText('— ' + o.author, x + 12, y + o.h - 12);
+      const b = partBox(o);
+      if (b) {
+        ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#6a6458'; ctx.lineWidth = 1.5; rr(b[0], b[1], b[2], b[3], 5); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = '#2f7d4f'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(b[0] + 6, b[1] + 13); ctx.lineTo(b[0] + 11, b[1] + 19); ctx.lineTo(b[0] + 20, b[1] + 7); ctx.stroke();
+      } else {
+        ctx.fillStyle = '#2f7d4f'; ctx.font = 'bold 11px ' + FONT; ctx.fillText('DONE', x + o.w - 44, y + 22);
+      }
+    } else if (o.kind === 'rect') {
+      ctx.fillStyle = o.color + '33'; ctx.strokeStyle = o.color; ctx.lineWidth = 2; rr(x, y, o.w, o.h, 6); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = T.ink; ctx.font = '13px ' + FONT; ctx.textAlign = 'center'; ctx.fillText(o.label, x + o.w / 2, y + o.h / 2 + 4); ctx.textAlign = 'left';
+      if (o.selected) {
+        ctx.setLineDash([5, 4]); ctx.strokeStyle = T.accent; ctx.lineWidth = 1; ctx.strokeRect(x - 4.5, y - 4.5, o.w + 9, o.h + 9); ctx.setLineDash([]);
+        [[x - 5, y - 5], [x + o.w - 5, y - 5], [x - 5, y + o.h - 5]].forEach(([hx, hy]) => { ctx.fillStyle = '#fff'; ctx.strokeStyle = T.accent; ctx.fillRect(hx, hy, 10, 10); ctx.strokeRect(hx + .5, hy + .5, 9, 9); });
+        const b = partBox(o);
+        ctx.fillStyle = T.accent; ctx.fillRect(b[0], b[1], b[2], b[3]); ctx.fillStyle = '#fff'; ctx.fillRect(b[0] + 4, b[1] + 4, b[2] - 8, b[3] - 8);
+      }
+    } else if (o.kind === 'card') {
+      ctx.fillStyle = T.panel; ctx.strokeStyle = T.line; ctx.lineWidth = 1.5; rr(x, y, o.w, o.h, 10); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = o.color; ctx.fillRect(x, y + 10, 4, o.h - 20);
+      ctx.fillStyle = T.ink; ctx.font = 'bold 13px ' + FONT; ctx.fillText(o.title, x + 14, y + 24);
+      ctx.fillStyle = T.muted; ctx.font = '12px ' + FONT; ctx.fillText(o.votes + ' votes · idea', x + 14, y + 44);
+      const b = partBox(o);
+      ctx.fillStyle = T.accent; rr(b[0], b[1], b[2], b[3], 12); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 12px ' + FONT; ctx.textAlign = 'center'; ctx.fillText('+1 Vote', b[0] + b[2] / 2, b[1] + 16); ctx.textAlign = 'left';
+    } else if (o.kind === 'ellipse') {
+      ctx.fillStyle = o.color + '30'; ctx.strokeStyle = o.color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(x + o.w / 2, y + o.h / 2, o.w / 2, o.h / 2, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = T.ink; ctx.font = '13px ' + FONT; ctx.textAlign = 'center'; ctx.fillText(o.label, x + o.w / 2, y + o.h / 2 + 4); ctx.textAlign = 'left';
+    } else if (o.kind === 'diamond') {
+      ctx.fillStyle = o.color + '30'; ctx.strokeStyle = o.color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x + o.w / 2, y); ctx.lineTo(x + o.w, y + o.h / 2); ctx.lineTo(x + o.w / 2, y + o.h); ctx.lineTo(x, y + o.h / 2); ctx.closePath(); ctx.fill(); ctx.stroke();
+    } else if (o.kind === 'label') {
+      ctx.fillStyle = T.muted; ctx.font = 'italic 16px ' + FONT; ctx.fillText(o.label, x, y + 24);
+      ctx.strokeStyle = T.muted; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x, y + 32); ctx.lineTo(x + o.w - 20, y + 32); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function draw() {
+    ctx.fillStyle = T.panel; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = T.line;
+    const gs = 24, ox = ((panX % gs) + gs) % gs, oy = ((panY % gs) + gs) % gs;
+    for (let y = oy; y < H; y += gs) for (let x = ox; x < W; x += gs) ctx.fillRect(Math.round(x), Math.round(y), 2, 2);
+    objs.filter(o => o.deco).forEach(drawObj);
+    objs.filter(o => !o.deco).forEach(drawObj);
+    Object.values(copies).forEach(list => list.forEach(drawObj));
+    // progressive stroke
+    const n = Math.floor(stroke.k);
+    if (n > 1) {
+      ctx.strokeStyle = '#d0605e'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.beginPath(); ctx.moveTo(stroke.pts[0][0], stroke.pts[0][1]);
+      for (let i = 1; i < n; i++) ctx.lineTo(stroke.pts[i][0], stroke.pts[i][1]);
+      ctx.stroke();
+    }
+    // collaborator cursor
+    const cx = Math.round(cursor.x), cy = Math.round(cursor.y);
+    ctx.fillStyle = '#e0731f'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + 13, cy + 12); ctx.lineTo(cx + 6, cy + 13); ctx.lineTo(cx + 2, cy + 19); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.font = '11px ' + FONT; const tw = ctx.measureText(cursor.name).width;
+    ctx.fillStyle = '#e0731f'; rr(cx + 12, cy + 16, tw + 12, 18, 4); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.fillText(cursor.name, cx + 18, cy + 29);
+  }
+
+  P.init = function () {
+    buildLayout();
+    makeCells();
+    addTargets();
+    cursor.x = P.between(safe[0] + 20, safe[2] - 80, RM); cursor.y = P.between(safe[1] + 20, safe[3] - 40, RM);
+    newWaypoint();
+    newStroke();
+    if (STROKE_SPEED) stroke.k = 2;
+    nextArrange = ARRANGE_MS ? Math.round(ARRANGE_MS * (0.4 + 0.3 * RM())) : 0;
+    lastTick = Date.now();
+    draw();
+    setInterval(() => { update(Date.now()); draw(); }, 16);
+  };
+  P.action = { id: 'export', smallLabel: 'Exported ✓', panelText: 'Board exported.', smallSel: '#exportStatus' };
+})();
+</script>
+</body>
+</html>

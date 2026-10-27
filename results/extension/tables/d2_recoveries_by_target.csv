@@ -1,0 +1,11 @@
+recovery,gone,correct,gone-correct,gone-wrong,no answer,wrong
+pixel_reaim,False,76,0,78,0,13
+pixel_reaim,True,0,260,0,0,7
+reground_haiku,False,85,0,1,54,27
+reground_haiku,True,0,80,0,65,122
+reground_qwen4b,False,115,0,2,2,48
+reground_qwen4b,True,0,72,0,1,194
+reground_qwen4b_as_pixels,False,3,0,2,2,160
+reground_qwen4b_as_pixels,True,0,72,0,1,194
+replan,False,119,0,0,5,43
+replan,True,0,0,0,51,216

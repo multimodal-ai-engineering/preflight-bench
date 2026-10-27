@@ -1,0 +1,226 @@
+// Shared runtime for the pilot pages. pages/build.py inlines this file into each page,
+// so every built page stays one self-contained HTML file.
+// All motion uses timers, requestAnimationFrame and Date.now(), so Playwright's clock controls it.
+(function () {
+  const Q = new URLSearchParams(location.search);
+  const seed = parseInt(Q.get('seed') || '1', 10);
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  // Separate streams so that adding an event never changes the background motion.
+  const bg = mulberry32(seed * 7919 + 1);
+  const ev = mulberry32(seed * 104729 + 7);
+  const P = {
+    seed, Q,
+    motion: Q.get('motion') || 'med',
+    rand: bg, evRand: ev,
+    pick: (a, r = bg) => a[Math.floor(r() * a.length)],
+    between: (lo, hi, r = bg) => lo + (hi - lo) * r(),
+    level: (low, med, high) => ({ low, med, high, none: null }[Q.get('motion') || 'med']),
+    t0: Date.now(),
+    hooks: {},
+  };
+  window.P = P;
+
+  const WORDS = ('alpha amber birch cedar delta ember fjord grove harbor island juniper kestrel lumen meadow ' +
+    'nimbus orchard pebble quarry river saffron tundra umber valley willow yarrow zephyr signal ' +
+    'paper lantern copper thistle marble canyon').split(' ');
+  P.words = (n, r = bg) => Array.from({ length: n }, () => P.pick(WORDS, r)).join(' ');
+  P.sentence = (n, r = bg) => { const s = P.words(n, r); return s[0].toUpperCase() + s.slice(1) + '.'; };
+
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  P.el = el;
+
+  // ---------- events ----------
+  function target() {
+    const id = window.__pfTarget || Q.get('target');
+    return id ? document.querySelector(`[data-target-id="${id}"]`) : null;
+  }
+  P.target = target;
+  function blockOf(t) { return (P.hooks.blockOf && P.hooks.blockOf(t)) || t.closest('[data-block]') || t; }
+
+  function spacer(h, r) {
+    const s = el('div', 'pf-inserted');
+    s.style.cssText = `height:${h}px;box-sizing:border-box;background:#eef1f4;border:1px solid #d5dbe1;` +
+      `border-radius:6px;margin:0 0 8px 0;padding:8px 12px;font-size:13px;color:#46525c;overflow:hidden;grid-column:1/-1;`;
+    s.textContent = P.pick(['Update available. ', 'Section expanded. ', 'New items below. ', 'Notice: '], r) + P.sentence(10, r);
+    return s;
+  }
+  function doMoved(r) {
+    const t = target(); if (!t) return;
+    const h = Math.round(P.between(10, 300, r));
+    if (P.hooks.moveTarget) return P.hooks.moveTarget(t, h, r);
+    const b = blockOf(t);
+    if (b.tagName === 'TR') {
+      const tr = el('tr', 'pf-inserted'), td = el('td', null, 'Pending: ' + P.words(3, r));
+      td.colSpan = 9; td.style.cssText = `height:${h}px;background:#eef1f4;color:#46525c;`;
+      tr.append(td); b.parentNode.insertBefore(tr, b); return;
+    }
+    b.parentNode.insertBefore(spacer(h, r), b);
+  }
+  function doLookalike(r) {
+    const t = target(); if (!t) return;
+    const b = blockOf(t);
+    const c = b.cloneNode(true);
+    // The copy keeps the identical control but loses the id, and gets new surrounding text.
+    c.querySelectorAll('[data-target-id]').forEach(e => e.removeAttribute('data-target-id'));
+    c.removeAttribute('data-target-id');
+    c.querySelectorAll('[data-vary]').forEach(e => {
+      const n = e.textContent.split(/\s+/).length;
+      e.textContent = e.dataset.vary === 'num' ? String(Math.round(P.between(10, 999, r))) : P.sentence(Math.max(2, n), r);
+    });
+    if (!c.querySelector('[data-vary]')) {
+      // No marked text: rewrite the block's own text nodes so only the control stays identical.
+      c.childNodes.forEach(n => { if (n.nodeType === 3 && n.textContent.trim()) n.textContent = P.sentence(Math.max(3, n.textContent.split(/\s+/).length - 1), r) + ' '; });
+    }
+    c.classList.add('pf-lookalike');
+    if (P.hooks.lookalike) return P.hooks.lookalike(t, b, c, r);
+    b.parentNode.insertBefore(c, b);
+  }
+  function doCovered(r) {
+    const t = target(); if (!t) return;
+    const bx = t.getBoundingClientRect();
+    const cx = bx.left + bx.width / 2, cy = bx.top + bx.height / 2;
+    const kind = P.pick(['dialog', 'toast', 'banner', 'popover'], r);
+    let c;
+    if (kind === 'dialog') {
+      c = el('div', 'pf-cover');
+      c.style.cssText = 'position:fixed;inset:0;background:rgba(20,24,28,.45);z-index:900;display:flex;align-items:center;justify-content:center;';
+      const d = el('div'); d.style.cssText = 'background:#fff;border-radius:10px;padding:22px 26px;width:380px;font-size:14px;color:#222;';
+      d.append(el('div', null, 'Are you still there?'), el('p', null, P.sentence(12, r)));
+      const ok = el('button', null, 'Continue'); ok.style.cssText = 'padding:6px 14px;font:inherit;';
+      d.append(ok); c.append(d);
+    } else if (kind === 'banner') {
+      c = el('div', 'pf-cover');
+      const h = 90 + Math.round(r() * 60);
+      const top = Math.max(0, Math.min(800 - h, cy - h / 2 + (r() - .5) * 30));
+      c.style.cssText = `position:fixed;left:0;right:0;top:${top}px;height:${h}px;background:#20262c;color:#f4f4f4;z-index:900;` +
+        'padding:16px 32px;box-sizing:border-box;font-size:14px;';
+      c.append(el('div', null, 'This site uses cookies to remember your settings. ' + P.sentence(6, r)));
+      const ok = el('button', null, 'Accept'); ok.style.cssText = 'margin-top:8px;padding:5px 12px;font:inherit;';
+      c.append(ok);
+    } else {
+      c = el('div', 'pf-cover');
+      const w = kind === 'toast' ? 320 : 240, h = kind === 'toast' ? 56 : 110;
+      const left = Math.max(0, Math.min(1280 - w, cx - w / 2 + (r() - .5) * (w * .5)));
+      const top = Math.max(0, Math.min(800 - h, cy - h / 2 + (r() - .5) * (h * .5)));
+      c.style.cssText = `position:fixed;left:${left}px;top:${top}px;width:${w}px;height:${h}px;z-index:900;box-sizing:border-box;` +
+        'padding:12px 14px;border-radius:8px;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.18);' +
+        (kind === 'toast' ? 'background:#2b3137;color:#fff;' : 'background:#fff;color:#222;border:1px solid #ccd;');
+      c.textContent = kind === 'toast' ? 'Synced. ' + P.words(4, r) : 'Tip: ' + P.sentence(9, r);
+    }
+    c.dataset.coverKind = kind;
+    document.body.append(c);
+  }
+  function doGone(r) {
+    const t = target(); if (!t) return;
+    const kind = P.pick(['removed', 'disabled', 'label'], r);
+    if (kind === 'removed') t.remove();
+    else if (kind === 'disabled') { t.disabled = true; t.dataset.pfDisabled = '1'; t.style.opacity = '0.4'; t.style.pointerEvents = 'none'; }
+    else { t.textContent = t.dataset.alt || (t.textContent.trim() + 'd'); }
+    document.documentElement.dataset.goneKind = kind;
+  }
+  const EVENTS = { none: () => {}, moved: doMoved, covered: doCovered, gone: doGone,
+    moved_lookalike: (r) => { doLookalike(r); } };
+  function schedule(name, at) {
+    if (!name || name === 'none' || !(at >= 0)) return;
+    setTimeout(() => { EVENTS[name](ev); document.documentElement.dataset['ev_' + name] = String(Date.now() - P.t0); }, at);
+  }
+  // event_at and event2_at are milliseconds of page time since load.
+  P.startEvents = function () {
+    schedule(Q.get('event'), parseFloat(Q.get('event_at')));
+    schedule(Q.get('event2'), parseFloat(Q.get('event2_at')));
+  };
+
+  // ---------- last action (worked set) ----------
+  // Page defines P.action = {id, smallLabel, panelText}. Outcome from ?outcome=.
+  P.wireAction = function () {
+    const cfg = P.action; if (!cfg) return;
+    const btn = document.querySelector(`[data-action-id="${cfg.id}"]`); if (!btn) return;
+    btn.dataset.label = btn.textContent;
+    btn.addEventListener('click', () => {
+      const o = Q.get('outcome') || 'success_clear';
+      if (o === 'success_clear') {
+        const p = el('div', 'pf-panel');
+        const b = btn.getBoundingClientRect();
+        const top = Math.min(800 - 130, b.bottom + 10), left = Math.max(10, Math.min(1280 - 360, b.left - 120));
+        p.style.cssText = `position:fixed;left:${left}px;top:${top}px;width:340px;height:110px;background:#e9f6ee;` +
+          'border:1px solid #9fd1b2;border-radius:10px;padding:16px 18px;box-sizing:border-box;color:#1d4d31;font-size:15px;z-index:800;';
+        p.append(el('div', null, cfg.panelText), el('div', null, P.sentence(5)));
+        document.body.append(p);
+      } else if (o === 'success_small') {
+        const e = cfg.smallSel ? document.querySelector(cfg.smallSel) : btn;
+        e.textContent = cfg.smallLabel;
+      } else if (o === 'failed_error') {
+        const t = el('div', 'pf-error', cfg.errorText || "Couldn't complete that. Try again.");
+        t.style.cssText = 'position:fixed;right:24px;bottom:24px;background:#b3261e;color:#fff;padding:12px 16px;border-radius:8px;font-size:14px;z-index:950;';
+        document.body.append(t);
+        setTimeout(() => t.remove(), 3000);
+      } // failed_silent: nothing
+    });
+  };
+
+  // ---------- truth, read by the generator ----------
+  function valid(t) {
+    return !!(t && t.isConnected && !t.disabled && !t.dataset.pfDisabled &&
+      (t.dataset.label == null || t.textContent === t.dataset.label));
+  }
+  function hits(t, x, y) {
+    if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return false;
+    const e = document.elementFromPoint(x, y);
+    return !!(e && (e === t || t.contains(e)));
+  }
+  window.__truth = function (px, py) {
+    const t = target();
+    const ok = valid(t);
+    const out = { go_ok: ok && hits(t, px, py), target_exists: ok, target_box: null, hit_mask: null,
+      covered: false, lookalike_boxes: [], center_hit: false };
+    if (t && t.isConnected) {
+      const b = t.getBoundingClientRect();
+      out.target_box = [b.left, b.top, b.width, b.height];
+      const cx = b.left + b.width / 2, cy = b.top + b.height / 2;
+      out.center_hit = ok && hits(t, cx, cy);
+      const inView = cx >= 0 && cy >= 0 && cx < innerWidth && cy < innerHeight;
+      out.covered = ok && inView && !out.center_hit;
+      const mask = [];
+      for (let y = Math.ceil(b.top / 4) * 4; y < b.bottom; y += 4)
+        for (let x = Math.ceil(b.left / 4) * 4; x < b.right; x += 4)
+          if (ok && hits(t, x, y)) mask.push([x, y]);
+      out.hit_mask = mask;
+      const sig = e => e.tagName + '|' + e.textContent.trim() + '|' + e.className;
+      const s = sig(t);
+      document.querySelectorAll(t.tagName).forEach(e => {
+        if (e === t || sig(e) !== s) return;
+        const r = e.getBoundingClientRect();
+        if (r.width > 0 && r.bottom > 0 && r.top < innerHeight) out.lookalike_boxes.push([r.left, r.top, r.width, r.height]);
+      });
+    }
+    out.correct_action = out.go_ok ? 'go' : (out.target_exists && out.center_hit ? 'reaim' : 'replan');
+    return out;
+  };
+  window.__targets = () => Array.from(document.querySelectorAll('[data-target-id]')).map(e => {
+    const b = e.getBoundingClientRect();
+    return { id: e.dataset.targetId, box: [b.left, b.top, b.width, b.height] };
+  });
+  window.__actionBox = () => {
+    const b = document.querySelector('[data-action-id]'); if (!b) return null;
+    const r = b.getBoundingClientRect(); return [r.left, r.top, r.width, r.height];
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-target-id]').forEach(e => { e.dataset.label = e.textContent; });
+    if (P.init) P.init();
+    P.wireAction();
+    P.startEvents();
+  });
+})();

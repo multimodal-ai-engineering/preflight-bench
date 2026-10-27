@@ -1,0 +1,41 @@
+{
+  "C5": {
+    "tau_low": 0.95,
+    "cover_band": 0.0,
+    "cand_min": 0.5
+  },
+  "C6": {
+    "tau_low": 0.95,
+    "cover_band": 0.0,
+    "cand_min": 0.5
+  },
+  "dev_objective": {
+    "C5": 0.8097199616198586,
+    "C6": 0.8779878733008706
+  },
+  "tuned_on": "Tier 1 dev",
+  "commit": "a62a690",
+  "date": "2026-10-23",
+  "model_hardware": "Colab Tesla T4 (fp16)",
+  "pixel_hardware": "Apple M3, 8 GB, Darwin 25.5.0",
+  "grid": {
+    "tau_low": [
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.85,
+      0.9,
+      0.95
+    ],
+    "cover_band": [
+      0.0,
+      0.1,
+      0.25,
+      0.5,
+      0.75
+    ]
+  },
+  "note": "Wave 2 C4 thresholds fixed; tie-break candidates = top 3 peaks >= cand_min; objective = expected s/step at p=0.05 incl. model time, no re-find cap (reported as cap_ok)",
+  "c4_dev_objective": 0.6163099673851593
+}

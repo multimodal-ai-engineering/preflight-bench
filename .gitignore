@@ -1,0 +1,11 @@
+private/
+.venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+data/full/**/frames/
+data/full/**/worked_frames/
+data/full_smoke/
+results/**/cache/
+results/**/gpu_jobs/

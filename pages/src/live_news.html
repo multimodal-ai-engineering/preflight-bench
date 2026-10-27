@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>News</title>
+<style>
+  * { box-sizing: border-box; caret-color: transparent; }
+  html, body { margin: 0; width: 1280px; height: 800px; overflow: hidden; background: #fbfbfa;
+    font: 14px/1.45 -apple-system, "Helvetica Neue", Arial, sans-serif; color: #1f2327; }
+  header { height: 58px; background: #fff; border-bottom: 1px solid #e4e4e1; display: flex; align-items: center; padding: 0 28px; gap: 18px; }
+  .mast { font: 700 22px Georgia, serif; }
+  nav a { margin-right: 14px; color: #1f2327; text-decoration: none; }
+  .grow { flex: 1; }
+  .btn { font: inherit; border: 1px solid #c8ccd0; background: #fff; border-radius: 6px; padding: 5px 12px; color: #1f2327; }
+  .btn.primary { background: #7a2f2f; border-color: #7a2f2f; color: #fff; }
+  .icon { width: 24px; height: 24px; padding: 0; border: 0; background: transparent; font: 15px/24px Arial; color: #59636d; border-radius: 4px; }
+  .ticker { height: 34px; background: #23272b; color: #f2f2f2; overflow: hidden; position: relative; white-space: nowrap; }
+  .ticker .run { position: absolute; top: 0; line-height: 34px; font-size: 13px; }
+  main { display: grid; grid-template-columns: 760px 1fr; gap: 24px; padding: 16px 28px; }
+  .car { position: relative; height: 300px; background: #e9e7e2; border-radius: 10px; overflow: hidden; }
+  .slide { position: absolute; inset: 0; padding: 26px 30px; }
+  .slide h2 { font: 600 26px/1.25 Georgia, serif; margin: 0 0 10px; max-width: 560px; }
+  .slide .blk { position: absolute; right: 30px; top: 30px; width: 200px; height: 140px; border-radius: 8px; }
+  .dots { position: absolute; bottom: 14px; left: 30px; display: flex; gap: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #b9b5ad; }
+  .dot.on { background: #3a3e42; }
+  .arrow { position: absolute; bottom: 8px; right: 14px; }
+  .list { margin-top: 14px; }
+  .item { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid #ecece9; }
+  .item .h { flex: 1; }
+  .side .card { background: #fff; border: 1px solid #e4e4e1; border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+  .count { font: 600 30px/1.2 Menlo, monospace; font-variant-numeric: tabular-nums; }
+  a { color: #7a2f2f; }
+</style></head>
+<body>
+<header>
+  <div class="mast">Headlines</div>
+  <nav><a href="#">Top</a><a href="#" data-target-id="nav-world" data-alt="World •">World</a><a href="#">Science</a><a href="#">Culture</a></nav>
+  <div class="grow"></div>
+  <button class="icon" data-target-id="search" data-alt="✕">⌕</button>
+  <button class="btn primary" data-target-id="subscribe" data-alt="Subscribed">Subscribe</button>
+</header>
+<div class="ticker"><div class="run" id="run"></div></div>
+<main>
+  <section>
+    <div class="car" id="car"></div>
+    <div class="list" id="list"></div>
+  </section>
+  <aside class="side">
+    <div class="card" data-block><div style="color:#6b7177;font-size:12px">Event starts in</div><div class="count" id="count">00:00:00</div>
+      <button class="btn" data-target-id="remind" data-alt="Reminder set">Remind me</button></div>
+    <div class="card" data-block><b>Newsletter</b><p data-vary="text" style="margin:6px 0 10px">A short morning summary of the main stories.</p>
+      <button class="btn" data-action-id="signup">Sign up</button> <a href="#" data-target-id="link-archive" data-alt="Archive (new)">Archive</a></div>
+  </aside>
+</main>
+<!--COMMON-->
+<script>
+(function () {
+  const run = document.getElementById('run');
+  run.textContent = Array.from({ length: 10 }, () => '◆ ' + P.sentence(6)).join('   ');
+  const car = document.getElementById('car');
+  const COLS = ['#c9bfae', '#aebec9', '#b7c9ae', '#c9aebb'];
+  const slides = COLS.map((c, i) => {
+    const s = P.el('div', 'slide'); s.style.display = i ? 'none' : 'block';
+    const b = P.el('div', 'blk'); b.style.background = c;
+    s.append(P.el('h2', null, P.sentence(7)), P.el('p', null, P.sentence(14)), b);
+    car.append(s); return s;
+  });
+  const dots = P.el('div', 'dots'); slides.forEach((_, i) => dots.append(P.el('div', 'dot' + (i ? '' : ' on')))); car.append(dots);
+  const arrow = P.el('button', 'icon arrow', '›'); arrow.dataset.targetId = 'car-next'; arrow.dataset.alt = '‹'; car.append(arrow);
+  const list = document.getElementById('list');
+  for (let i = 1; i <= 6; i++) {
+    const it = P.el('div', 'item'); it.setAttribute('data-block', '');
+    const h = P.el('div', 'h', P.sentence(9)); h.dataset.vary = 'text';
+    const rd = P.el('button', 'btn', 'Read'); const sh = P.el('button', 'icon', '⤴');
+    if (i === 2 || i === 4) { rd.dataset.targetId = 'read-' + i; rd.dataset.alt = 'Read ✓'; }
+    if (i === 3) { sh.dataset.targetId = 'share-3'; sh.dataset.alt = '✓'; }
+    it.append(h, rd, sh); list.append(it);
+  }
+  P.action = { id: 'signup', smallLabel: 'Signed up ✓', panelText: 'You are on the list.' };
+
+  P.init = function () {
+    const speed = P.level(30, 60, 110); // px per second
+    const advance = P.level(6000, 4000, 2500);
+    const count = document.getElementById('count');
+    let k = 0;
+    if (advance) setInterval(() => {
+      slides[k].style.display = 'none'; dots.children[k].className = 'dot';
+      k = (k + 1) % slides.length; slides[k].style.display = 'block'; dots.children[k].className = 'dot on';
+    }, advance);
+    const end = 3 * 3600 + 12 * 60 + 40;
+    function frame() {
+      const t = (Date.now() - P.t0) / 1000;
+      if (speed) run.style.left = (1280 - ((t * speed) % 3200)) + 'px';
+      const s = Math.max(0, end - Math.floor(t));
+      count.textContent = [s / 3600, (s / 60) % 60, s % 60].map(x => String(Math.floor(x)).padStart(2, '0')).join(':');
+    }
+    // Fixed 16 ms timer, not requestAnimationFrame: rAF counts vary run to run under a paused clock.
+    setInterval(frame, 16); frame();
+  };
+})();
+</script>
+</body></html>

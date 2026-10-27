@@ -1,0 +1,13 @@
+{
+  "split": "dev",
+  "commit": "a62a690",
+  "date": "2026-10-23 07:18",
+  "pixel_hardware": "Apple M3, 8 GB, Darwin 25.5.0",
+  "qwen_hardware": "Colab Tesla T4 (fp16, transformers + CUDA)",
+  "hosted": [
+    "claude-opus-5-5",
+    "claude-haiku-5-5"
+  ],
+  "n_pairs": 300,
+  "c8_subset": 50
+}

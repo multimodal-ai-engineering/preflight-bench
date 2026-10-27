@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Dashboard</title>
+<style>
+  * { box-sizing: border-box; caret-color: transparent; }
+  html, body { margin: 0; width: 1280px; height: 800px; overflow: hidden; background: #f3f4f6;
+    font: 14px/1.4 -apple-system, "Helvetica Neue", Arial, sans-serif; color: #1c2229; }
+  header { height: 52px; background: #fff; border-bottom: 1px solid #e0e3e7; display: flex; align-items: center; padding: 0 24px; gap: 16px; }
+  .title { font-weight: 700; font-size: 17px; }
+  .grow { flex: 1; }
+  .clock { font-variant-numeric: tabular-nums; color: #4d5862; width: 80px; }
+  .updated { color: #6b757f; font-size: 12px; width: 150px; }
+  .btn { font: inherit; border: 1px solid #c8cdd3; background: #fff; border-radius: 6px; padding: 5px 12px; color: #1c2229; }
+  .btn.primary { background: #2d5f7c; border-color: #2d5f7c; color: #fff; }
+  .icon { width: 24px; height: 24px; padding: 0; border: 0; background: transparent; font: 15px/24px Arial; color: #59636d; border-radius: 4px; }
+  main { padding: 14px 24px; }
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+  .tile { background: #fff; border: 1px solid #e0e3e7; border-radius: 10px; padding: 10px 14px; height: 86px; position: relative; }
+  .tile .lab { color: #6b757f; font-size: 12px; }
+  .tile .val { font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tile .d { font-size: 12px; }
+  .tile .icon { position: absolute; right: 8px; top: 8px; }
+  .up { color: #2d7a4b; } .down { color: #b0452f; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr 420px; gap: 12px; }
+  .panel { background: #fff; border: 1px solid #e0e3e7; border-radius: 10px; padding: 10px 14px; }
+  .panel h3 { margin: 0 0 6px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+  canvas { display: block; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  td, th { padding: 5px 4px; border-bottom: 1px solid #eef0f2; text-align: left; font-variant-numeric: tabular-nums; }
+  th { color: #6b757f; font-weight: 500; }
+  .bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .note { font-size: 13px; color: #4d5862; }
+  a { color: #2d5f7c; }
+</style></head>
+<body>
+<header>
+  <div class="title">Overview</div><div class="clock" id="clock">00:00:00</div>
+  <div class="grow"></div>
+  <span class="updated" id="updated">Updated 4 min ago</span>
+  <button class="btn" data-action-id="refresh">Refresh</button>
+  <button class="btn" data-target-id="export" data-alt="Exporting">Export</button>
+  <button class="icon" data-target-id="settings" data-alt="✕">⚙</button>
+</header>
+<main>
+  <div class="tiles" id="tiles"></div>
+  <div class="row2">
+    <div class="panel" data-block><h3>Series A <span class="grow"></span><a href="#" data-target-id="range-a" data-alt="Range: 24h">Range: 1h</a></h3><canvas id="c1" width="370" height="200"></canvas></div>
+    <div class="panel" data-block><h3>Series B <span class="grow"></span><button class="btn" data-target-id="toggle-b" data-alt="Shown">Hide</button></h3><canvas id="c2" width="370" height="200"></canvas></div>
+    <div class="panel" data-block><h3>Top metrics</h3><table><thead><tr><th>Name</th><th>Value</th><th>Change</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>
+  </div>
+  <div class="bottom">
+    <div class="panel note" data-block>Notes: <span data-vary="text">Values refresh automatically. Thresholds are set per metric in the configuration view.</span> <a href="#" data-target-id="link-docs" data-alt="Docs (updated)">Docs</a></div>
+    <div class="panel note" data-block>Alerts: <span data-vary="text">No open alerts for the selected range.</span> <button class="btn" data-target-id="ack" data-alt="Acknowledged">Acknowledge</button></div>
+  </div>
+</main>
+<!--COMMON-->
+<script>
+(function () {
+  const tiles = document.getElementById('tiles');
+  const vals = [];
+  for (let i = 1; i <= 8; i++) {
+    const t = P.el('div', 'tile'); t.setAttribute('data-block', '');
+    const v = P.el('div', 'val'); const d = P.el('div', 'd');
+    const ic = P.el('button', 'icon', '↗');
+    if (i === 2 || i === 7) { ic.dataset.targetId = 'tile-' + i; ic.dataset.alt = '↘'; }
+    t.append(P.el('div', 'lab', 'Metric ' + i), v, d, ic);
+    tiles.append(t);
+    vals.push({ v, d, x: 100 + P.rand() * 900 });
+  }
+  const tb = document.getElementById('tb');
+  const rows = [];
+  for (let i = 1; i <= 7; i++) {
+    const tr = document.createElement('tr');
+    const n = P.el('td', null, 'Series ' + String.fromCharCode(64 + i)), v = P.el('td'), c = P.el('td'), a = P.el('td');
+    const b = P.el('button', 'btn', 'Open'); b.style.padding = '2px 10px';
+    if (i === 2 || i === 5) { b.dataset.targetId = 'open-' + i; b.dataset.alt = 'Opened'; }
+    a.append(b); tr.append(n, v, c, a); tb.append(tr);
+    rows.push({ tr, v, c, x: 50 + P.rand() * 500, ch: 0 });
+  }
+  P.action = { id: 'refresh', smallSel: '#updated', smallLabel: 'Updated just now', panelText: 'Data refreshed.' };
+  P.hooks.blockOf = t => t.closest('tr') || t.closest('[data-block]');
+
+  function drawTiles() {
+    vals.forEach(o => {
+      const dv = (P.rand() - .5) * o.x * .02; o.x = Math.max(1, o.x + dv);
+      o.v.textContent = o.x.toFixed(1); o.d.textContent = (dv >= 0 ? '▲ ' : '▼ ') + Math.abs(dv).toFixed(2);
+      o.d.className = 'd ' + (dv >= 0 ? 'up' : 'down');
+    });
+  }
+  function drawRows(sort) {
+    rows.forEach(r => { r.ch = (P.rand() - .5) * 20; r.x = Math.max(1, r.x + r.ch); r.v.textContent = r.x.toFixed(0); r.c.textContent = (r.ch >= 0 ? '+' : '') + r.ch.toFixed(1); });
+    if (sort) rows.slice().sort((a, b) => b.x - a.x).forEach(r => tb.append(r.tr));
+  }
+  const series = [[], []];
+  const crand = mulberryLike(P.seed * 31 + 5); // own stream so chart steps never shift tile values
+  function mulberryLike(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  function chart(id, data, color) {
+    const c = document.getElementById(id), g = c.getContext('2d');
+    g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+    g.strokeStyle = '#eef0f2'; g.lineWidth = 1;
+    for (let y = 40; y < c.height; y += 40) { g.beginPath(); g.moveTo(0, y); g.lineTo(c.width, y); g.stroke(); }
+    g.strokeStyle = color; g.lineWidth = 2; g.beginPath();
+    data.forEach((v, i) => { const x = i * 4, y = c.height - 10 - v; i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke();
+  }
+  function step(k, last) {
+    const d = series[k]; const nv = Math.max(5, Math.min(180, (last ?? 90) + (crand() - .5) * 18));
+    d.push(nv); if (d.length > 93) d.shift(); return nv;
+  }
+  P.init = function () {
+    const tileMs = P.level(1000, 500, 250);
+    let la = 90, lb = 60;
+    for (let i = 0; i < 93; i++) { la = step(0, la); lb = step(1, lb); }
+    drawTiles(); drawRows(true);
+    const clock = document.getElementById('clock');
+    const base = 9 * 3600 + 30 * 60;
+    let lastChart = 0;
+    const scrollMs = P.level(400, 200, 100);
+    function frame() {
+      const now = Date.now() - P.t0;
+      const s = base + Math.floor(now / 1000);
+      clock.textContent = [s / 3600, (s / 60) % 60, s % 60].map(x => String(Math.floor(x)).padStart(2, '0')).join(':');
+      if (scrollMs && now - lastChart >= scrollMs) { lastChart = now; la = step(0, la); lb = step(1, lb); }
+      chart('c1', series[0], '#2d5f7c'); chart('c2', series[1], '#b07a2f');
+    }
+    // Fixed 16 ms timer, not requestAnimationFrame: rAF counts vary run to run under a paused clock.
+    setInterval(frame, 16); frame();
+    if (tileMs) {
+      setInterval(drawTiles, tileMs);
+      let n = 0; setInterval(() => drawRows(++n % 3 === 0), tileMs * 1.5);
+    }
+  };
+})();
+</script>
+</body></html>

@@ -1,0 +1,2 @@
+s3_share,s3_hi,s3_wait_median,s5_wait_median,part_share,part_hi,part_wait,cheapest_le_1pct,cheapest_le_1pct_wait,cheapest_hi_le_2pct,cheapest_hi_le_2pct_wait,holds
+0.0277337559429477,0.038325974690559775,0.654,1.241,False,False,True,S5,1.241,S5,1.241,False

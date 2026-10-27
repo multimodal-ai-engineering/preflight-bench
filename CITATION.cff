@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this benchmark or code, please cite the paper."
+title: "Preflight Bench"
+authors:
+  - family-names: Srinivasan
+    given-names: Vasundra
+repository-code: "https://github.com/multimodal-ai-engineering/preflight-bench"
+license: MIT
+date-released: 2026-10-27
+preferred-citation:
+  type: article
+  title: "What Does “Now” Mean to Your Computer-Use Agent? Stale Screenshots, Page Loads, and Which Check to Run Before a Click"
+  authors:
+    - family-names: Srinivasan
+      given-names: Vasundra
+  year: 2026
+  url: "https://github.com/multimodal-ai-engineering/preflight-bench"

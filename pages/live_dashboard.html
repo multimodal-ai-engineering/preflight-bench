@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Dashboard</title>
+<style>
+  * { box-sizing: border-box; caret-color: transparent; }
+  html, body { margin: 0; width: 1280px; height: 800px; overflow: hidden; background: #f3f4f6;
+    font: 14px/1.4 -apple-system, "Helvetica Neue", Arial, sans-serif; color: #1c2229; }
+  header { height: 52px; background: #fff; border-bottom: 1px solid #e0e3e7; display: flex; align-items: center; padding: 0 24px; gap: 16px; }
+  .title { font-weight: 700; font-size: 17px; }
+  .grow { flex: 1; }
+  .clock { font-variant-numeric: tabular-nums; color: #4d5862; width: 80px; }
+  .updated { color: #6b757f; font-size: 12px; width: 150px; }
+  .btn { font: inherit; border: 1px solid #c8cdd3; background: #fff; border-radius: 6px; padding: 5px 12px; color: #1c2229; }
+  .btn.primary { background: #2d5f7c; border-color: #2d5f7c; color: #fff; }
+  .icon { width: 24px; height: 24px; padding: 0; border: 0; background: transparent; font: 15px/24px Arial; color: #59636d; border-radius: 4px; }
+  main { padding: 14px 24px; }
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+  .tile { background: #fff; border: 1px solid #e0e3e7; border-radius: 10px; padding: 10px 14px; height: 86px; position: relative; }
+  .tile .lab { color: #6b757f; font-size: 12px; }
+  .tile .val { font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tile .d { font-size: 12px; }
+  .tile .icon { position: absolute; right: 8px; top: 8px; }
+  .up { color: #2d7a4b; } .down { color: #b0452f; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr 420px; gap: 12px; }
+  .panel { background: #fff; border: 1px solid #e0e3e7; border-radius: 10px; padding: 10px 14px; }
+  .panel h3 { margin: 0 0 6px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+  canvas { display: block; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  td, th { padding: 5px 4px; border-bottom: 1px solid #eef0f2; text-align: left; font-variant-numeric: tabular-nums; }
+  th { color: #6b757f; font-weight: 500; }
+  .bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .note { font-size: 13px; color: #4d5862; }
+  a { color: #2d5f7c; }
+</style></head>
+<body>
+<header>
+  <div class="title">Overview</div><div class="clock" id="clock">00:00:00</div>
+  <div class="grow"></div>
+  <span class="updated" id="updated">Updated 4 min ago</span>
+  <button class="btn" data-action-id="refresh">Refresh</button>
+  <button class="btn" data-target-id="export" data-alt="Exporting">Export</button>
+  <button class="icon" data-target-id="settings" data-alt="✕">⚙</button>
+</header>
+<main>
+  <div class="tiles" id="tiles"></div>
+  <div class="row2">
+    <div class="panel" data-block><h3>Series A <span class="grow"></span><a href="#" data-target-id="range-a" data-alt="Range: 24h">Range: 1h</a></h3><canvas id="c1" width="370" height="200"></canvas></div>
+    <div class="panel" data-block><h3>Series B <span class="grow"></span><button class="btn" data-target-id="toggle-b" data-alt="Shown">Hide</button></h3><canvas id="c2" width="370" height="200"></canvas></div>
+    <div class="panel" data-block><h3>Top metrics</h3><table><thead><tr><th>Name</th><th>Value</th><th>Change</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>
+  </div>
+  <div class="bottom">
+    <div class="panel note" data-block>Notes: <span data-vary="text">Values refresh automatically. Thresholds are set per metric in the configuration view.</span> <a href="#" data-target-id="link-docs" data-alt="Docs (updated)">Docs</a></div>
+    <div class="panel note" data-block>Alerts: <span data-vary="text">No open alerts for the selected range.</span> <button class="btn" data-target-id="ack" data-alt="Acknowledged">Acknowledge</button></div>
+  </div>
+</main>
+<script>
+// Shared runtime for the pilot pages. pages/build.py inlines this file into each page,
+// so every built page stays one self-contained HTML file.
+// All motion uses timers, requestAnimationFrame and Date.now(), so Playwright's clock controls it.
+(function () {
+  const Q = new URLSearchParams(location.search);
+  const seed = parseInt(Q.get('seed') || '1', 10);
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  // Separate streams so that adding an event never changes the background motion.
+  const bg = mulberry32(seed * 7919 + 1);
+  const ev = mulberry32(seed * 104729 + 7);
+  const P = {
+    seed, Q,
+    motion: Q.get('motion') || 'med',
+    rand: bg, evRand: ev,
+    pick: (a, r = bg) => a[Math.floor(r() * a.length)],
+    between: (lo, hi, r = bg) => lo + (hi - lo) * r(),
+    level: (low, med, high) => ({ low, med, high, none: null }[Q.get('motion') || 'med']),
+    t0: Date.now(),
+    hooks: {},
+  };
+  window.P = P;
+
+  const WORDS = ('alpha amber birch cedar delta ember fjord grove harbor island juniper kestrel lumen meadow ' +
+    'nimbus orchard pebble quarry river saffron tundra umber valley willow yarrow zephyr signal ' +
+    'paper lantern copper thistle marble canyon').split(' ');
+  P.words = (n, r = bg) => Array.from({ length: n }, () => P.pick(WORDS, r)).join(' ');
+  P.sentence = (n, r = bg) => { const s = P.words(n, r); return s[0].toUpperCase() + s.slice(1) + '.'; };
+
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  P.el = el;
+
+  // ---------- events ----------
+  function target() {
+    const id = window.__pfTarget || Q.get('target');
+    return id ? document.querySelector(`[data-target-id="${id}"]`) : null;
+  }
+  P.target = target;
+  function blockOf(t) { return (P.hooks.blockOf && P.hooks.blockOf(t)) || t.closest('[data-block]') || t; }
+
+  function spacer(h, r) {
+    const s = el('div', 'pf-inserted');
+    s.style.cssText = `height:${h}px;box-sizing:border-box;background:#eef1f4;border:1px solid #d5dbe1;` +
+      `border-radius:6px;margin:0 0 8px 0;padding:8px 12px;font-size:13px;color:#46525c;overflow:hidden;grid-column:1/-1;`;
+    s.textContent = P.pick(['Update available. ', 'Section expanded. ', 'New items below. ', 'Notice: '], r) + P.sentence(10, r);
+    return s;
+  }
+  function doMoved(r) {
+    const t = target(); if (!t) return;
+    const h = Math.round(P.between(10, 300, r));
+    if (P.hooks.moveTarget) return P.hooks.moveTarget(t, h, r);
+    const b = blockOf(t);
+    if (b.tagName === 'TR') {
+      const tr = el('tr', 'pf-inserted'), td = el('td', null, 'Pending: ' + P.words(3, r));
+      td.colSpan = 9; td.style.cssText = `height:${h}px;background:#eef1f4;color:#46525c;`;
+      tr.append(td); b.parentNode.insertBefore(tr, b); return;
+    }
+    b.parentNode.insertBefore(spacer(h, r), b);
+  }
+  function doLookalike(r) {
+    const t = target(); if (!t) return;
+    const b = blockOf(t);
+    const c = b.cloneNode(true);
+    // The copy keeps the identical control but loses the id, and gets new surrounding text.
+    c.querySelectorAll('[data-target-id]').forEach(e => e.removeAttribute('data-target-id'));
+    c.removeAttribute('data-target-id');
+    c.querySelectorAll('[data-vary]').forEach(e => {
+      const n = e.textContent.split(/\s+/).length;
+      e.textContent = e.dataset.vary === 'num' ? String(Math.round(P.between(10, 999, r))) : P.sentence(Math.max(2, n), r);
+    });
+    if (!c.querySelector('[data-vary]')) {
+      // No marked text: rewrite the block's own text nodes so only the control stays identical.
+      c.childNodes.forEach(n => { if (n.nodeType === 3 && n.textContent.trim()) n.textContent = P.sentence(Math.max(3, n.textContent.split(/\s+/).length - 1), r) + ' '; });
+    }
+    c.classList.add('pf-lookalike');
+    if (P.hooks.lookalike) return P.hooks.lookalike(t, b, c, r);
+    b.parentNode.insertBefore(c, b);
+  }
+  function doCovered(r) {
+    const t = target(); if (!t) return;
+    const bx = t.getBoundingClientRect();
+    const cx = bx.left + bx.width / 2, cy = bx.top + bx.height / 2;
+    const kind = P.pick(['dialog', 'toast', 'banner', 'popover'], r);
+    let c;
+    if (kind === 'dialog') {
+      c = el('div', 'pf-cover');
+      c.style.cssText = 'position:fixed;inset:0;background:rgba(20,24,28,.45);z-index:900;display:flex;align-items:center;justify-content:center;';
+      const d = el('div'); d.style.cssText = 'background:#fff;border-radius:10px;padding:22px 26px;width:380px;font-size:14px;color:#222;';
+      d.append(el('div', null, 'Are you still there?'), el('p', null, P.sentence(12, r)));
+      const ok = el('button', null, 'Continue'); ok.style.cssText = 'padding:6px 14px;font:inherit;';
+      d.append(ok); c.append(d);
+    } else if (kind === 'banner') {
+      c = el('div', 'pf-cover');
+      const h = 90 + Math.round(r() * 60);
+      const top = Math.max(0, Math.min(800 - h, cy - h / 2 + (r() - .5) * 30));
+      c.style.cssText = `position:fixed;left:0;right:0;top:${top}px;height:${h}px;background:#20262c;color:#f4f4f4;z-index:900;` +
+        'padding:16px 32px;box-sizing:border-box;font-size:14px;';
+      c.append(el('div', null, 'This site uses cookies to remember your settings. ' + P.sentence(6, r)));
+      const ok = el('button', null, 'Accept'); ok.style.cssText = 'margin-top:8px;padding:5px 12px;font:inherit;';
+      c.append(ok);
+    } else {
+      c = el('div', 'pf-cover');
+      const w = kind === 'toast' ? 320 : 240, h = kind === 'toast' ? 56 : 110;
+      const left = Math.max(0, Math.min(1280 - w, cx - w / 2 + (r() - .5) * (w * .5)));
+      const top = Math.max(0, Math.min(800 - h, cy - h / 2 + (r() - .5) * (h * .5)));
+      c.style.cssText = `position:fixed;left:${left}px;top:${top}px;width:${w}px;height:${h}px;z-index:900;box-sizing:border-box;` +
+        'padding:12px 14px;border-radius:8px;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.18);' +
+        (kind === 'toast' ? 'background:#2b3137;color:#fff;' : 'background:#fff;color:#222;border:1px solid #ccd;');
+      c.textContent = kind === 'toast' ? 'Synced. ' + P.words(4, r) : 'Tip: ' + P.sentence(9, r);
+    }
+    c.dataset.coverKind = kind;
+    document.body.append(c);
+  }
+  function doGone(r) {
+    const t = target(); if (!t) return;
+    const kind = P.pick(['removed', 'disabled', 'label'], r);
+    if (kind === 'removed') t.remove();
+    else if (kind === 'disabled') { t.disabled = true; t.dataset.pfDisabled = '1'; t.style.opacity = '0.4'; t.style.pointerEvents = 'none'; }
+    else { t.textContent = t.dataset.alt || (t.textContent.trim() + 'd'); }
+    document.documentElement.dataset.goneKind = kind;
+  }
+  const EVENTS = { none: () => {}, moved: doMoved, covered: doCovered, gone: doGone,
+    moved_lookalike: (r) => { doLookalike(r); } };
+  function schedule(name, at) {
+    if (!name || name === 'none' || !(at >= 0)) return;
+    setTimeout(() => { EVENTS[name](ev); document.documentElement.dataset['ev_' + name] = String(Date.now() - P.t0); }, at);
+  }
+  // event_at and event2_at are milliseconds of page time since load.
+  P.startEvents = function () {
+    schedule(Q.get('event'), parseFloat(Q.get('event_at')));
+    schedule(Q.get('event2'), parseFloat(Q.get('event2_at')));
+  };
+
+  // ---------- last action (worked set) ----------
+  // Page defines P.action = {id, smallLabel, panelText}. Outcome from ?outcome=.
+  P.wireAction = function () {
+    const cfg = P.action; if (!cfg) return;
+    const btn = document.querySelector(`[data-action-id="${cfg.id}"]`); if (!btn) return;
+    btn.dataset.label = btn.textContent;
+    btn.addEventListener('click', () => {
+      const o = Q.get('outcome') || 'success_clear';
+      if (o === 'success_clear') {
+        const p = el('div', 'pf-panel');
+        const b = btn.getBoundingClientRect();
+        const top = Math.min(800 - 130, b.bottom + 10), left = Math.max(10, Math.min(1280 - 360, b.left - 120));
+        p.style.cssText = `position:fixed;left:${left}px;top:${top}px;width:340px;height:110px;background:#e9f6ee;` +
+          'border:1px solid #9fd1b2;border-radius:10px;padding:16px 18px;box-sizing:border-box;color:#1d4d31;font-size:15px;z-index:800;';
+        p.append(el('div', null, cfg.panelText), el('div', null, P.sentence(5)));
+        document.body.append(p);
+      } else if (o === 'success_small') {
+        const e = cfg.smallSel ? document.querySelector(cfg.smallSel) : btn;
+        e.textContent = cfg.smallLabel;
+      } else if (o === 'failed_error') {
+        const t = el('div', 'pf-error', cfg.errorText || "Couldn't complete that. Try again.");
+        t.style.cssText = 'position:fixed;right:24px;bottom:24px;background:#b3261e;color:#fff;padding:12px 16px;border-radius:8px;font-size:14px;z-index:950;';
+        document.body.append(t);
+        setTimeout(() => t.remove(), 3000);
+      } // failed_silent: nothing
+    });
+  };
+
+  // ---------- truth, read by the generator ----------
+  function valid(t) {
+    return !!(t && t.isConnected && !t.disabled && !t.dataset.pfDisabled &&
+      (t.dataset.label == null || t.textContent === t.dataset.label));
+  }
+  function hits(t, x, y) {
+    if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return false;
+    const e = document.elementFromPoint(x, y);
+    return !!(e && (e === t || t.contains(e)));
+  }
+  window.__truth = function (px, py) {
+    const t = target();
+    const ok = valid(t);
+    const out = { go_ok: ok && hits(t, px, py), target_exists: ok, target_box: null, hit_mask: null,
+      covered: false, lookalike_boxes: [], center_hit: false };
+    if (t && t.isConnected) {
+      const b = t.getBoundingClientRect();
+      out.target_box = [b.left, b.top, b.width, b.height];
+      const cx = b.left + b.width / 2, cy = b.top + b.height / 2;
+      out.center_hit = ok && hits(t, cx, cy);
+      const inView = cx >= 0 && cy >= 0 && cx < innerWidth && cy < innerHeight;
+      out.covered = ok && inView && !out.center_hit;
+      const mask = [];
+      for (let y = Math.ceil(b.top / 4) * 4; y < b.bottom; y += 4)
+        for (let x = Math.ceil(b.left / 4) * 4; x < b.right; x += 4)
+          if (ok && hits(t, x, y)) mask.push([x, y]);
+      out.hit_mask = mask;
+      const sig = e => e.tagName + '|' + e.textContent.trim() + '|' + e.className;
+      const s = sig(t);
+      document.querySelectorAll(t.tagName).forEach(e => {
+        if (e === t || sig(e) !== s) return;
+        const r = e.getBoundingClientRect();
+        if (r.width > 0 && r.bottom > 0 && r.top < innerHeight) out.lookalike_boxes.push([r.left, r.top, r.width, r.height]);
+      });
+    }
+    out.correct_action = out.go_ok ? 'go' : (out.target_exists && out.center_hit ? 'reaim' : 'replan');
+    return out;
+  };
+  window.__targets = () => Array.from(document.querySelectorAll('[data-target-id]')).map(e => {
+    const b = e.getBoundingClientRect();
+    return { id: e.dataset.targetId, box: [b.left, b.top, b.width, b.height] };
+  });
+  window.__actionBox = () => {
+    const b = document.querySelector('[data-action-id]'); if (!b) return null;
+    const r = b.getBoundingClientRect(); return [r.left, r.top, r.width, r.height];
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-target-id]').forEach(e => { e.dataset.label = e.textContent; });
+    if (P.init) P.init();
+    P.wireAction();
+    P.startEvents();
+  });
+})();
+
+</script>
+<script>
+(function () {
+  const tiles = document.getElementById('tiles');
+  const vals = [];
+  for (let i = 1; i <= 8; i++) {
+    const t = P.el('div', 'tile'); t.setAttribute('data-block', '');
+    const v = P.el('div', 'val'); const d = P.el('div', 'd');
+    const ic = P.el('button', 'icon', '↗');
+    if (i === 2 || i === 7) { ic.dataset.targetId = 'tile-' + i; ic.dataset.alt = '↘'; }
+    t.append(P.el('div', 'lab', 'Metric ' + i), v, d, ic);
+    tiles.append(t);
+    vals.push({ v, d, x: 100 + P.rand() * 900 });
+  }
+  const tb = document.getElementById('tb');
+  const rows = [];
+  for (let i = 1; i <= 7; i++) {
+    const tr = document.createElement('tr');
+    const n = P.el('td', null, 'Series ' + String.fromCharCode(64 + i)), v = P.el('td'), c = P.el('td'), a = P.el('td');
+    const b = P.el('button', 'btn', 'Open'); b.style.padding = '2px 10px';
+    if (i === 2 || i === 5) { b.dataset.targetId = 'open-' + i; b.dataset.alt = 'Opened'; }
+    a.append(b); tr.append(n, v, c, a); tb.append(tr);
+    rows.push({ tr, v, c, x: 50 + P.rand() * 500, ch: 0 });
+  }
+  P.action = { id: 'refresh', smallSel: '#updated', smallLabel: 'Updated just now', panelText: 'Data refreshed.' };
+  P.hooks.blockOf = t => t.closest('tr') || t.closest('[data-block]');
+
+  function drawTiles() {
+    vals.forEach(o => {
+      const dv = (P.rand() - .5) * o.x * .02; o.x = Math.max(1, o.x + dv);
+      o.v.textContent = o.x.toFixed(1); o.d.textContent = (dv >= 0 ? '▲ ' : '▼ ') + Math.abs(dv).toFixed(2);
+      o.d.className = 'd ' + (dv >= 0 ? 'up' : 'down');
+    });
+  }
+  function drawRows(sort) {
+    rows.forEach(r => { r.ch = (P.rand() - .5) * 20; r.x = Math.max(1, r.x + r.ch); r.v.textContent = r.x.toFixed(0); r.c.textContent = (r.ch >= 0 ? '+' : '') + r.ch.toFixed(1); });
+    if (sort) rows.slice().sort((a, b) => b.x - a.x).forEach(r => tb.append(r.tr));
+  }
+  const series = [[], []];
+  const crand = mulberryLike(P.seed * 31 + 5); // own stream so chart steps never shift tile values
+  function mulberryLike(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  function chart(id, data, color) {
+    const c = document.getElementById(id), g = c.getContext('2d');
+    g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+    g.strokeStyle = '#eef0f2'; g.lineWidth = 1;
+    for (let y = 40; y < c.height; y += 40) { g.beginPath(); g.moveTo(0, y); g.lineTo(c.width, y); g.stroke(); }
+    g.strokeStyle = color; g.lineWidth = 2; g.beginPath();
+    data.forEach((v, i) => { const x = i * 4, y = c.height - 10 - v; i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke();
+  }
+  function step(k, last) {
+    const d = series[k]; const nv = Math.max(5, Math.min(180, (last ?? 90) + (crand() - .5) * 18));
+    d.push(nv); if (d.length > 93) d.shift(); return nv;
+  }
+  P.init = function () {
+    const tileMs = P.level(1000, 500, 250);
+    let la = 90, lb = 60;
+    for (let i = 0; i < 93; i++) { la = step(0, la); lb = step(1, lb); }
+    drawTiles(); drawRows(true);
+    const clock = document.getElementById('clock');
+    const base = 9 * 3600 + 30 * 60;
+    let lastChart = 0;
+    const scrollMs = P.level(400, 200, 100);
+    function frame() {
+      const now = Date.now() - P.t0;
+      const s = base + Math.floor(now / 1000);
+      clock.textContent = [s / 3600, (s / 60) % 60, s % 60].map(x => String(Math.floor(x)).padStart(2, '0')).join(':');
+      if (scrollMs && now - lastChart >= scrollMs) { lastChart = now; la = step(0, la); lb = step(1, lb); }
+      chart('c1', series[0], '#2d5f7c'); chart('c2', series[1], '#b07a2f');
+    }
+    // Fixed 16 ms timer, not requestAnimationFrame: rAF counts vary run to run under a paused clock.
+    setInterval(frame, 16); frame();
+    if (tileMs) {
+      setInterval(drawTiles, tileMs);
+      let n = 0; setInterval(() => drawRows(++n % 3 === 0), tileMs * 1.5);
+    }
+  };
+})();
+</script>
+</body></html>

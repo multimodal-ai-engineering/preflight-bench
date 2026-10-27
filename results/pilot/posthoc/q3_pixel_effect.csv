@@ -1,0 +1,3 @@
+split,theta,recall_failures,recall_lo,recall_hi,false_alarm,flag_failed_error,flag_failed_silent,flag_success_clear,flag_success_small
+dev,0.9875560390295358,0.9,0.7863950966521162,0.956524876008429,0.0,0.92,0.88,0.0,0.0
+test,0.9875560390295358,0.9,0.8256326956323347,0.9447714583868639,0.0,0.92,0.88,0.0,0.0

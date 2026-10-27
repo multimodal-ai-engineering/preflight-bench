@@ -1,0 +1,8 @@
+pair_id,event,motion_bin,reason,scored_outcome,in_place_ncc,tau_in,best_peak,best_shift_px,target_ncc_in_place,bright_shift,outside_drop,truth_shift_px
+tier0_booking-none-moved-s13,moved,static,weak_match,false_replan,0.025,0.5,0.529,"(-791, 12)",-0.122,13.09,0.0,"(10.1, -10.5)"
+tier0_booking-none-moved-s17,moved,static,weak_match,false_replan,0.023,0.5,0.485,"(-856, 12)",-0.123,12.96,0.0,"(9.4, -10.5)"
+tier0_booking-none-moved-s21,moved,static,weak_match,false_replan,0.026,0.5,0.545,"(-786, 12)",-0.122,13.09,0.0,"(9.1, -10.5)"
+tier0_booking-none-moved-s28,moved,static,weak_match,false_replan,0.043,0.5,0.534,"(-780, 12)",-0.096,12.95,0.0,"(7.8, -10.5)"
+tier0_booking-none-moved-s30,moved,static,weak_match,false_replan,0.024,0.5,0.538,"(-787, 12)",-0.122,12.94,0.0,"(9.3, -10.5)"
+tier0_booking-none-moved-s35,moved,static,weak_match,false_replan,0.058,0.5,0.529,"(-777, 12)",-0.075,13.04,0.0,"(7.1, -10.5)"
+tier0_booking-none-moved-s38,moved,static,weak_match,false_replan,0.027,0.5,0.532,"(-783, 12)",-0.12,12.88,0.0,"(8.5, -10.5)"

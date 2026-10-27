@@ -1,0 +1,7 @@
+outcome,steps
+replan_needed,370
+success,168
+planner_miss,144
+stale,61
+parse_fail,29
+replan_false,14

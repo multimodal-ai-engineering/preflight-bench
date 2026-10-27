@@ -1,0 +1,9 @@
+check,run,n,answered,recall_failures,recall_lo,recall_hi,false_alarm,flag_failed_error,flag_failed_silent,flag_success_clear,flag_success_small,same_answer_as_prereg
+qwen3-vl-2b,preregistered,200,200,0.89,0.8136853697209698,0.9374586804477487,0.0,0.88,0.9,0.0,0.0,
+qwen3-vl-2b,opaque_shuffled,200,200,0.89,0.8136853697209698,0.9374586804477487,0.0,0.88,0.9,0.0,0.0,1.0
+qwen3-vl-4b,preregistered,200,200,1.0,0.9630051925239981,0.9999999999999999,0.0,1.0,1.0,0.0,0.0,
+qwen3-vl-4b,opaque_shuffled,200,200,1.0,0.9630051925239981,0.9999999999999999,0.0,1.0,1.0,0.0,0.0,1.0
+claude-haiku-5-5,preregistered,200,200,1.0,0.9630051925239981,0.9999999999999999,0.0,1.0,1.0,0.0,0.0,
+claude-haiku-5-5,opaque_shuffled,200,200,1.0,0.9630051925239981,0.9999999999999999,0.0,1.0,1.0,0.0,0.0,1.0
+claude-opus-5-5,preregistered,200,200,1.0,0.9630051925239981,0.9999999999999999,0.0,1.0,1.0,0.0,0.0,
+claude-opus-5-5,opaque_shuffled,200,200,1.0,0.9630051925239981,0.9999999999999999,0.0,1.0,1.0,0.0,0.0,1.0

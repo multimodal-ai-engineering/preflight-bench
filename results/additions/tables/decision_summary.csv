@@ -1,0 +1,15 @@
+form,subset,value,decisions,agreement,obs_check_share,pred_check_obs_skip,pred_skip_obs_check,E7_holds
+exposure term (exploratory),all,all,3000.0,0.9433333333333334,0.446,76.0,94.0,
+exposure term (exploratory),p,0.003 (settled real pages),750.0,0.9453333333333334,0.06266666666666666,13.0,28.0,
+exposure term (exploratory),p,0.01 (scrolled real pages),750.0,0.8786666666666667,0.116,36.0,55.0,
+exposure term (exploratory),p,0.171 (just-navigated real pages),750.0,0.9573333333333334,0.6573333333333333,22.0,10.0,
+exposure term (exploratory),p,0.686 (benchmark Tier 1),750.0,0.992,0.948,5.0,1.0,
+exposure term (exploratory),first-order error,<= 0.03,2088.0,0.9377394636015326,0.4904214559386973,43.0,87.0,
+exposure term (exploratory),first-order error,> 0.03,912.0,0.956140350877193,0.3442982456140351,33.0,7.0,
+first order,all,all,3000.0,0.9473333333333334,0.446,148.0,10.0,True
+first order,p,0.003 (settled real pages),750.0,0.956,0.06266666666666666,33.0,0.0,
+first order,p,0.01 (scrolled real pages),750.0,0.9066666666666666,0.116,64.0,6.0,
+first order,p,0.171 (just-navigated real pages),750.0,0.9333333333333333,0.6573333333333333,46.0,4.0,
+first order,p,0.686 (benchmark Tier 1),750.0,0.9933333333333333,0.948,5.0,0.0,
+first order,first-order error,<= 0.03,2088.0,0.9545019157088123,0.4904214559386973,88.0,7.0,
+first order,first-order error,> 0.03,912.0,0.930921052631579,0.3442982456140351,60.0,3.0,

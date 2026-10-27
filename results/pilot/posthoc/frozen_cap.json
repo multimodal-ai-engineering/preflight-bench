@@ -1,0 +1,17 @@
+{
+  "C5": {
+    "tau_low": 1.01,
+    "cover_band": 0.1,
+    "cand_min": 0.5
+  },
+  "C6": {
+    "tau_low": 1.01,
+    "cover_band": 0.1,
+    "cand_min": 0.5
+  },
+  "dev_objective": {
+    "C5": 0.728313873783861,
+    "C6": 0.7285963610171626
+  },
+  "rule": "Wave 2 objective(): s/step at p=0.05, re-find errors <= 1% of re-aims; settings that never escalate excluded"
+}

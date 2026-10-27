@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wayfinder Map</title>
+<style>
+  html, body { width:1280px; height:800px; overflow:hidden; margin:0; }
+  * { caret-color: transparent; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 13px; }
+  #app { position: relative; width: 1280px; height: 800px; overflow: hidden; }
+  button { font-family: var(--font); cursor: pointer; }
+
+  .frame { position: absolute; overflow: hidden; background: var(--line); }
+  .layer { position: absolute; left: 0; top: 0; width: 0; height: 0; }
+  .tile { position: absolute; width: 256px; height: 256px; display: block; }
+  .marker-layer { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 5; }
+  .marker { position: absolute; display: flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px 0 3px;
+    border-radius: 13px; background: var(--panel); color: var(--ink); border: 1px solid var(--line);
+    box-shadow: 0 1px 3px rgba(0,0,0,.28); font-size: 12px; white-space: nowrap; max-width: 170px; margin: 0; }
+  .marker .pin { flex: 0 0 20px; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #fff;
+    font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+  .marker .ml { overflow: hidden; text-overflow: ellipsis; }
+
+  .ov { position: absolute; z-index: 20; }
+  .search { display: flex; gap: 6px; align-items: center; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 6px 6px 6px 12px; box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+  .search input { flex: 1; border: 0; outline: 0; background: transparent; color: var(--ink); font: 14px var(--font); min-width: 0; }
+  .search input::placeholder { color: var(--muted); }
+  .btn { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 6px; padding: 5px 9px; font-size: 12px; margin: 0; }
+  .btn.pri { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .ctl { display: flex; flex-direction: column; gap: 6px; }
+  .ctl .btn { width: 38px; height: 38px; padding: 0; font-size: 20px; line-height: 1; box-shadow: 0 1px 4px rgba(0,0,0,.18); }
+  .ctl .btn.wide { width: auto; padding: 0 12px; font-size: 13px; }
+  .zlabel { text-align: center; font-size: 11px; color: var(--muted); background: var(--panel); border-radius: 4px; border: 1px solid var(--line); }
+  .scale { font-size: 11px; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 2px 6px; opacity: .9; }
+  .scale i { display: inline-block; width: 64px; height: 6px; border: 2px solid var(--ink); border-top: 0; margin-left: 6px; vertical-align: middle; }
+  .loading { font-size: 11px; color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 2px 8px; }
+  .attrib { font-size: 10px; color: var(--muted); background: var(--panel); opacity: .85; padding: 1px 6px; border-radius: 3px; }
+
+  .panel { position: absolute; background: var(--panel); border-color: var(--line); border-style: solid; border-width: 0; overflow: hidden; z-index: 30; }
+  .ptitle { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 12px 0 8px; }
+  .sel { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--bg); }
+  .sel h2 { margin: 0 0 4px; font-size: 18px; }
+  .sel .row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; color: var(--muted); }
+  .plist { display: flex; flex-direction: column; }
+  .place { border-bottom: 1px solid var(--line); padding: 10px 2px 12px; margin: 0 0 8px; }
+  .pname { font-size: 15px; font-weight: bold; margin-bottom: 3px; }
+  .pmeta { color: var(--muted); font-size: 12px; margin-bottom: 2px; }
+  .pbtns { display: flex; gap: 6px; margin-top: 8px; flex-wrap: nowrap; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { font-size: 11px; border: 1px solid var(--line); border-radius: 12px; padding: 3px 9px; color: var(--muted); }
+
+  .sheetrow { display: flex; gap: 12px; }
+  .sheetrow .place { flex: 0 0 296px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--bg); margin: 0; }
+  .fcard { width: 304px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.18); z-index: 25; }
+  .fcard .place { border: 0; padding: 0; margin: 0; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<!--COMMON-->
+<script>
+(function () {
+  const TS = 256;
+
+  P.init = function () {
+    const V = ((P.variant % 4) + 4) % 4, R = P.rand, seed = P.seed;
+    const app = document.getElementById('app');
+    const el = P.el;
+    const cap = s => s[0].toUpperCase() + s.slice(1);
+
+    // ---------- fictional content ----------
+    const STREETS = Array.from({ length: 12 }, () => cap(P.words(1)) + ' ' + P.pick(['Row', 'Lane', 'Way', 'Street', 'Avenue', 'Walk', 'Crescent', 'Parade']));
+    const TYPES = [['Bakery', 'B'], ['Books', 'K'], ['Clinic', 'C'], ['Garden Cafe', 'G'], ['Hardware', 'H'], ['Noodle Bar', 'N'],
+      ['Laundry', 'L'], ['Pharmacy', 'P'], ['Gallery', 'A'], ['Market', 'M'], ['Bike Repair', 'R'], ['Tea House', 'T']];
+    const usedTypes = new Set();
+    const places = Array.from({ length: 8 }, () => {
+      let ty; do { ty = P.pick(TYPES); } while (usedTypes.has(ty[0]) && usedTypes.size < TYPES.length); usedTypes.add(ty[0]);
+      return { name: cap(P.words(1)) + ' ' + ty[0], type: ty[0], letter: ty[1],
+        addr: (2 + Math.floor(R() * 180)) + ' ' + P.pick(STREETS), dist: (0.2 + R() * 3.4).toFixed(1),
+        rating: (3.6 + R() * 1.3).toFixed(1), reviews: 12 + Math.floor(R() * 600),
+        hours: P.pick(['Open until 18:00', 'Open until 21:30', 'Closes soon', 'Open 24 hours', 'Opens 09:00']) };
+    });
+
+    // ---------- tile palette (shifts with the theme) ----------
+    const PAL = [
+      { street: '#ffffff', block: '#e8ebef', park: '#cfe5c7', tree: '#b5d3ab', water: '#b8d3ea', ph: '#dde2e8', phl: '#d3d9e0', ave: '#f6e3b4', label: '#6f7983' },
+      { street: '#fffaf2', block: '#eee4d6', park: '#d4e1bf', tree: '#bfd0a5', water: '#bad0da', ph: '#e5dccf', phl: '#dcd2c3', ave: '#f0d4a8', label: '#7a6c5e' },
+      { street: '#33404c', block: '#1d252e', park: '#1f3a2f', tree: '#285040', water: '#173550', ph: '#232c35', phl: '#2b3540', ave: '#544c34', label: '#93a2b0' },
+      { street: '#fbfffc', block: '#e1eae4', park: '#c3dfc7', tree: '#a9cdb0', water: '#bfd5e8', ph: '#d9e3dc', phl: '#ceDAd2', ave: '#e6d9f1', label: '#5f7368' },
+    ][V];
+
+    // ---------- layout per variant ----------
+    // v0: side panel left with search in it; v1: side panel right, search floating top-center;
+    // v2: bottom sheet with horizontal place cards, search floating top-left; v3: no panel, floating cards, search top-center.
+    const FR = [[380, 0, 900, 800], [0, 0, 900, 800], [0, 0, 1280, 560], [0, 0, 1280, 800]][V];
+    const fw = FR[2], fh = FR[3];
+    const frame = el('div', 'frame');
+    frame.style.cssText = `left:${FR[0]}px;top:${FR[1]}px;width:${fw}px;height:${fh}px;`;
+    const layer = el('div', 'layer');
+    const mlayer = el('div', 'marker-layer');
+    layer.append(mlayer);
+    frame.append(layer);
+    app.append(frame);
+
+    function ov(node, css) { node.classList.add('ov'); node.style.cssText += css; frame.append(node); return node; }
+    function searchBox() {
+      const s = el('div', 'search');
+      const i = el('input'); i.placeholder = 'Search places, streets, areas'; i.value = '';
+      s.append(i, el('button', 'btn pri', 'Search'));
+      return s;
+    }
+    function placeBlock(p, idx, withTargets) {
+      const b = el('div', 'place'); b.dataset.block = '1';
+      const n = el('div', 'pname', p.name); n.dataset.vary = '1';
+      const m1 = el('div', 'pmeta', `${p.type} · ${p.addr} · ${p.dist} km`);
+      const m2 = el('div', 'pmeta');
+      const rt = el('span', null, p.rating); rt.dataset.vary = 'num';
+      m2.append('★ ', rt, ` (${p.reviews}) · ${p.hours}`);
+      const row = el('div', 'pbtns');
+      [['dir', 'Directions', 'Route'], ['save', 'Save', 'Saved'], ['call', 'Call', 'Calling'], ['info', 'Details', 'Hide details']].forEach(([k, t, alt]) => {
+        const bt = el('button', 'btn' + (k === 'dir' ? ' pri' : ''), t);
+        if (withTargets) { bt.dataset.targetId = `p${idx + 1}-${k}`; bt.dataset.alt = alt; }
+        row.append(bt);
+      });
+      b.append(n, m1, m2, row);
+      return b;
+    }
+    function selectedCard(p) {
+      const s = el('div', 'sel');
+      s.append(el('div', 'pmeta', 'Selected place'), el('h2', null, p.name), el('div', 'pmeta', `${p.type} · ${p.addr}`));
+      const row = el('div', 'row');
+      row.append(el('span', null, `★ ${p.rating} · ${p.hours}`));
+      const a = el('button', 'btn pri', 'Save place'); a.dataset.actionId = 'save-place';
+      row.append(a);
+      s.append(row);
+      return s;
+    }
+    function chips() {
+      const c = el('div', 'chips');
+      ['Open now', 'Nearby', 'Top rated', 'Food', 'Services'].forEach(t => c.append(el('span', 'chip', t)));
+      return c;
+    }
+
+    // map controls fixed relative to the frame
+    const zoom = el('div', 'ctl');
+    const zi = el('button', 'btn', '+'); zi.dataset.targetId = 'zoom-in'; zi.dataset.alt = '⊕';
+    const zl = el('div', 'zlabel', 'z14');
+    const zo = el('button', 'btn', '−'); zo.dataset.targetId = 'zoom-out'; zo.dataset.alt = '⊖';
+    zoom.append(zi, zl, zo);
+    let z = 14;
+    zi.addEventListener('click', () => { z = Math.min(19, z + 1); zl.textContent = 'z' + z; });
+    zo.addEventListener('click', () => { z = Math.max(9, z - 1); zl.textContent = 'z' + z; });
+    const lay = el('div', 'ctl');
+    const lb = el('button', 'btn wide', 'Layers'); lb.dataset.targetId = 'layers'; lb.dataset.alt = 'Layers ▾';
+    lay.append(lb);
+    const scale = el('div', 'scale'); scale.append('200 m', el('i'));
+    const loading = el('div', 'loading', 'Loading map tiles…');
+    const attrib = el('div', 'attrib', 'Map drawn from generated data');
+
+    if (V === 0) {
+      const pn = el('div', 'panel');
+      pn.style.cssText = 'left:0;top:0;width:380px;height:800px;border-right-width:1px;padding:14px 16px;';
+      pn.append(searchBox());
+      const t1 = el('div', 'ptitle', 'Selected'); pn.append(t1, selectedCard(places[0]));
+      pn.append(el('div', 'ptitle', `Places nearby · ${places.length} results`), chips());
+      const list = el('div', 'plist'); list.style.marginTop = '8px';
+      places.slice(1, 6).forEach((p, i) => list.append(placeBlock(p, i, true)));
+      pn.append(list); app.append(pn);
+      ov(zoom, 'right:16px;bottom:28px;'); ov(lay, 'right:16px;top:16px;');
+      ov(scale, 'left:16px;bottom:16px;'); ov(loading, 'left:16px;top:16px;'); ov(attrib, 'right:70px;bottom:6px;');
+    } else if (V === 1) {
+      const pn = el('div', 'panel');
+      pn.style.cssText = 'left:900px;top:0;width:380px;height:800px;border-left-width:1px;padding:4px 18px 14px;';
+      pn.append(el('div', 'ptitle', `Results · ${places.length} places`), chips());
+      const list = el('div', 'plist'); list.style.marginTop = '8px';
+      places.slice(1, 6).forEach((p, i) => list.append(placeBlock(p, i, true)));
+      pn.append(list);
+      pn.append(el('div', 'ptitle', 'Selected'), selectedCard(places[0]));
+      app.append(pn);
+      ov(searchBox(), 'left:250px;top:16px;width:400px;');
+      ov(zoom, 'left:16px;top:84px;'); ov(lay, 'right:16px;bottom:40px;');
+      ov(scale, 'right:16px;top:16px;'); ov(loading, 'left:16px;bottom:16px;'); ov(attrib, 'right:16px;bottom:8px;');
+    } else if (V === 2) {
+      const pn = el('div', 'panel');
+      pn.style.cssText = 'left:0;top:560px;width:1280px;height:240px;border-top-width:1px;padding:10px 12px;box-shadow:0 -3px 10px rgba(0,0,0,.08);';
+      const hd = el('div'); hd.style.cssText = 'display:flex;align-items:center;gap:12px;margin-bottom:10px;';
+      const hdt = el('div', null, `Places nearby · ${places[0].name} selected`); hdt.style.cssText = 'font-weight:bold;font-size:14px;flex:1;';
+      const a = el('button', 'btn pri', 'Save place'); a.dataset.actionId = 'save-place';
+      hd.append(el('div', null, '▬'), hdt, chips(), a);
+      hd.firstChild.style.color = 'var(--muted)';
+      const row = el('div', 'sheetrow');
+      places.slice(1, 6).forEach((p, i) => row.append(placeBlock(p, i, true)));
+      pn.append(hd, row); app.append(pn);
+      ov(searchBox(), 'left:16px;top:16px;width:380px;');
+      ov(zoom, 'right:16px;top:180px;'); ov(lay, 'right:16px;top:16px;');
+      ov(scale, 'left:16px;bottom:14px;'); ov(loading, 'left:150px;bottom:14px;'); ov(attrib, 'right:16px;bottom:6px;');
+    } else {
+      ov(searchBox(), 'left:440px;top:16px;width:400px;');
+      const ca = el('div', 'fcard');
+      const hd = el('div'); hd.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;';
+      const a = el('button', 'btn', 'Save place'); a.dataset.actionId = 'save-place';
+      hd.append(el('span', 'pmeta', 'Selected place'), a);
+      ca.append(hd, placeBlock(places[1], 0, true));
+      ov(ca, 'left:16px;top:16px;');
+      const cb = el('div', 'fcard');
+      cb.append(el('div', 'pmeta', 'Also nearby'), placeBlock(places[2], 1, true));
+      ov(cb, 'right:16px;bottom:16px;');
+      ov(zoom, 'right:16px;top:16px;'); ov(lay, 'left:16px;bottom:16px;');
+      ov(scale, 'left:120px;bottom:18px;'); ov(loading, 'left:16px;top:200px;'); ov(attrib, 'left:540px;bottom:6px;');
+    }
+
+    // panel targets must be fully in view at t=0 (layout is static), otherwise drop them
+    document.querySelectorAll('.place [data-target-id]').forEach(b => {
+      const r = b.getBoundingClientRect();
+      if (r.bottom > 792 || r.right > 1276 || r.top < 0) { delete b.dataset.targetId; delete b.dataset.alt; }
+    });
+
+    // ---------- markers (in the panning layer) ----------
+    const fRect = frame.getBoundingClientRect();
+    const obstacles = Array.from(frame.querySelectorAll('.ov')).map(o => {
+      const r = o.getBoundingClientRect();
+      return [r.left - fRect.left, r.top - fRect.top, r.width, r.height];
+    });
+    const MW = 170, MH = 26, PAD = 58;
+    const hitsRect = (a, b, g) => a[0] < b[0] + b[2] + g && b[0] < a[0] + a[2] + g && a[1] < b[1] + b[3] + g && b[1] < a[1] + a[3] + g;
+    const markers = [];
+    const mrand = P.mulberry32(seed * 977 + V * 13 + 5);
+    places.slice(0, 7).forEach((p, i) => {
+      let x, y, tries = 0, ok = false;
+      while (tries++ < 2000) {
+        x = Math.round(PAD + mrand() * (fw - 2 * PAD - MW)); y = Math.round(PAD + mrand() * (fh - 2 * PAD - MH));
+        const box = [x, y, MW, MH];
+        if (obstacles.some(o => hitsRect(box, o, PAD))) continue;
+        if (markers.some(m => hitsRect(box, [m.x, m.y, MW, MH], 14))) continue;
+        ok = true; break;
+      }
+      if (!ok) return;
+      const m = el('button', 'marker');
+      const pin = el('span', 'pin', p.letter), lab = el('span', 'ml', p.name);
+      m.append(pin, lab);
+      m.dataset.targetId = 'm' + (i + 1); m.dataset.alt = 'Closed · ' + p.name;
+      m.style.left = x + 'px'; m.style.top = y + 'px';
+      mlayer.append(m);
+      markers.push({ el: m, x, y });
+    });
+    function placeMarker(mk) { mk.el.style.left = Math.round(mk.x) + 'px'; mk.el.style.top = Math.round(mk.y) + 'px'; }
+
+    // ---------- procedural tiles ----------
+    function hash(a, b) {
+      let h = (Math.imul(a | 0, 374761393) + Math.imul(b | 0, 668265263) + Math.imul(seed, 2246822519 | 0)) | 0;
+      h = Math.imul(h ^ (h >>> 13), 1274126177); h ^= h >>> 16;
+      return (h >>> 0) / 4294967296;
+    }
+    const S = 84;
+    const mod = (a, n) => ((a % n) + n) % n;
+    const xs = k => k * S + Math.floor(hash(k, 101) * 22) - 11;
+    const ys = k => k * S + Math.floor(hash(k, 202) * 22) - 11;
+    const sw = k => (mod(k, 4) === 0 ? 13 : 6);
+    const ph1 = R() * 6.28, ph2 = R() * 6.28, RY = fh * (0.35 + R() * 0.3);
+    const river = x => RY + 80 * Math.sin(x / 430 + ph1) + 26 * Math.sin(x / 140 + ph2);
+    const AV = R() * fw, AVS = 0.55 + R() * 0.3;
+    const pond = { x: fw * (0.2 + R() * 0.6), y: fh * (0.15 + R() * 0.2), r: 46 + R() * 30 };
+
+    function drawPlaceholder(c) {
+      const g = c.getContext('2d');
+      g.fillStyle = PAL.ph; g.fillRect(0, 0, TS, TS);
+      g.fillStyle = PAL.phl;
+      for (let k = 0; k < TS; k += 64) { g.fillRect(k, 0, 1, TS); g.fillRect(0, k, TS, 1); }
+    }
+    function drawTile(c, i, j) {
+      const g = c.getContext('2d'), X0 = i * TS, Y0 = j * TS;
+      g.fillStyle = PAL.street; g.fillRect(0, 0, TS, TS);
+      const kx0 = Math.floor(X0 / S) - 1, kx1 = Math.floor((X0 + TS) / S) + 1;
+      const ky0 = Math.floor(Y0 / S) - 1, ky1 = Math.floor((Y0 + TS) / S) + 1;
+      for (let kx = kx0; kx <= kx1; kx++) for (let ky = ky0; ky <= ky1; ky++) {
+        const bx0 = xs(kx) + sw(kx) / 2, bx1 = xs(kx + 1) - sw(kx + 1) / 2;
+        const by0 = ys(ky) + sw(ky) / 2, by1 = ys(ky + 1) - sw(ky + 1) / 2;
+        const hv = hash(kx * 31 + 7, ky * 17 + 3);
+        if (hv < 0.1) {
+          g.fillStyle = PAL.park; g.fillRect(bx0 - X0, by0 - Y0, bx1 - bx0, by1 - by0);
+          g.fillStyle = PAL.tree;
+          for (let q = 0; q < 7; q++) {
+            const tx = bx0 + 8 + hash(kx * 7 + q, ky * 11) * (bx1 - bx0 - 16), ty = by0 + 8 + hash(kx * 13, ky * 5 + q) * (by1 - by0 - 16);
+            g.beginPath(); g.arc(tx - X0, ty - Y0, 4, 0, 6.283); g.fill();
+          }
+        } else {
+          g.fillStyle = PAL.block; g.fillRect(bx0 - X0, by0 - Y0, bx1 - bx0, by1 - by0);
+          if (hv > 0.6) {  // alley splits the block
+            g.fillStyle = PAL.street;
+            if (hv > 0.8) g.fillRect(Math.round((bx0 + bx1) / 2) - X0 - 1, by0 - Y0, 2, by1 - by0);
+            else g.fillRect(bx0 - X0, Math.round((by0 + by1) / 2) - Y0 - 1, bx1 - bx0, 2);
+          }
+        }
+      }
+      // pond
+      g.fillStyle = PAL.water;
+      g.beginPath(); g.ellipse(pond.x - X0, pond.y - Y0, pond.r * 1.4, pond.r, 0, 0, 6.283); g.fill();
+      // river
+      g.beginPath();
+      for (let x = X0 - 8; x <= X0 + TS + 8; x += 8) g.lineTo(x - X0, river(x) - 28 - Y0);
+      for (let x = X0 + TS + 8; x >= X0 - 8; x -= 8) g.lineTo(x - X0, river(x) + 28 - Y0);
+      g.closePath(); g.fill();
+      // diagonal avenue (bridges the river)
+      g.strokeStyle = PAL.ave; g.lineWidth = 11;
+      g.beginPath(); g.moveTo(-20, (X0 - 20 - AV) * AVS - Y0); g.lineTo(TS + 20, (X0 + TS + 20 - AV) * AVS - Y0); g.stroke();
+      // street names along wide horizontal streets
+      g.fillStyle = PAL.label; g.font = '10px ' + getComputedStyle(document.body).fontFamily;
+      for (let ky = ky0; ky <= ky1; ky++) {
+        if (mod(ky, 4) !== 0) continue;
+        const y = ys(ky) - Y0 + 4;
+        if (y < 8 || y > TS - 4 || hash(i, ky) > 0.6) continue;
+        const name = STREETS[mod(ky + i, STREETS.length)];
+        const w = g.measureText(name).width;
+        if (w + 24 < TS) g.fillText(name, 12 + Math.floor(hash(ky, i) * (TS - w - 24)), y);
+      }
+    }
+
+    // ---------- motion: pan drift, re-centering, tile loads ----------
+    const mr = P.mulberry32(seed * 4421 + V);
+    const speed = P.level(5, 18, 46);           // px/s drift
+    const initStep = P.level(45, 30, 20);       // initial tile cascade
+    const newDelay = P.level(900, 420, 200);    // tile placeholder -> drawn
+    const refreshEvery = P.level(2600, 1100, 450);
+    const recenterEvery = P.level(14000, 9000, 5500);
+    let ox = 0, oy = 0, ang = mr() * 6.283, turn = (mr() - .5) * 0.0006;
+    let mode = 'drift', rc = null, nextRecenter = recenterEvery, nextRefresh = 600 + refreshEvery;
+    const tiles = new Map();
+    let last = Date.now();
+
+    function ensureTiles(t, initial) {
+      const i0 = Math.floor((-ox - 8) / TS), i1 = Math.floor((-ox + fw + 8) / TS);
+      const j0 = Math.floor((-oy - 8) / TS), j1 = Math.floor((-oy + fh + 8) / TS);
+      const fresh = [];
+      for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) {
+        const key = i + ',' + j;
+        if (tiles.has(key)) continue;
+        const c = document.createElement('canvas'); c.width = TS; c.height = TS; c.className = 'tile';
+        c.style.left = (i * TS) + 'px'; c.style.top = (j * TS) + 'px';
+        drawPlaceholder(c);
+        layer.insertBefore(c, mlayer);
+        const tl = { c, i, j, loadAt: 0, loaded: false };
+        tiles.set(key, tl); fresh.push(tl);
+      }
+      if (initial) {
+        const cx = fw / 2, cy = fh / 2;
+        fresh.sort((a, b) => Math.hypot(a.i * TS + 128 - cx, a.j * TS + 128 - cy) - Math.hypot(b.i * TS + 128 - cx, b.j * TS + 128 - cy));
+        fresh.forEach((tl, k) => { tl.loadAt = 40 + k * initStep; });
+      } else fresh.forEach((tl, k) => { tl.loadAt = t + newDelay + k * 60; });
+      // drop tiles far outside the frame
+      tiles.forEach((tl, key) => {
+        if (tl.i < i0 - 2 || tl.i > i1 + 2 || tl.j < j0 - 2 || tl.j > j1 + 2) { tl.c.remove(); tiles.delete(key); }
+      });
+    }
+    function loadDue(t) {
+      let pending = 0;
+      tiles.forEach(tl => {
+        if (tl.loaded) return;
+        if (t >= tl.loadAt) { drawTile(tl.c, tl.i, tl.j); tl.loaded = true; } else pending++;
+      });
+      loading.textContent = pending ? `Loading map tiles… ${pending}` : 'Map tiles up to date';
+    }
+    function applyPan() { layer.style.transform = `translate(${Math.round(ox)}px, ${Math.round(oy)}px)`; }
+
+    function tick() {
+      const now = Date.now(), t = now - P.t0, dt = Math.min(100, Math.max(0, now - last)); last = now;
+      if (mode === 'drift') {
+        ang += turn * dt;
+        ox += Math.cos(ang) * speed * dt / 1000; oy += Math.sin(ang) * speed * dt / 1000;
+        if (t >= nextRecenter) { mode = 'recenter'; rc = { fx: ox, fy: oy, t0: t, dur: 1100, tx: Math.round((mr() - .5) * 40), ty: Math.round((mr() - .5) * 40) }; }
+      } else {
+        const k = Math.min(1, (t - rc.t0) / rc.dur), e = k * k * (3 - 2 * k);
+        ox = rc.fx + (rc.tx - rc.fx) * e; oy = rc.fy + (rc.ty - rc.fy) * e;
+        if (k >= 1) { mode = 'drift'; nextRecenter = t + recenterEvery; ang = mr() * 6.283; turn = (mr() - .5) * 0.0006; }
+      }
+      applyPan();
+      ensureTiles(t, false);
+      if (t >= nextRefresh) {  // a tile re-fetches: placeholder, then redrawn
+        nextRefresh = t + refreshEvery;
+        const loaded = Array.from(tiles.values()).filter(tl => tl.loaded);
+        if (loaded.length) { const tl = loaded[Math.floor(mr() * loaded.length)]; drawPlaceholder(tl.c); tl.loaded = false; tl.loadAt = t + newDelay; }
+      }
+      loadDue(t);
+    }
+    ensureTiles(0, true);
+    applyPan();
+    loadDue(0);
+    setInterval(tick, 16);
+
+    // ---------- event hooks ----------
+    function spacer(h, r, horizontal) {
+      const s = el('div', 'pf-inserted');
+      s.style.cssText = (horizontal ? `flex:0 0 ${h}px;width:${h}px;height:auto;` : `height:${h}px;`) +
+        'box-sizing:border-box;background:var(--panel);border:1px solid var(--line);color:var(--muted);' +
+        'border-radius:6px;margin:0 0 8px 0;padding:8px 12px;font-size:13px;overflow:hidden;';
+      s.textContent = P.pick(['Update available. ', 'Section expanded. ', 'New places below. ', 'Notice: '], r) + P.sentence(10, r);
+      return s;
+    }
+    P.hooks.moveTarget = function (t, h, r) {
+      const mk = markers.find(m => m.el === t);
+      if (mk) {  // shift the marker's map position by ~h px
+        const a = r() * 6.283;
+        mk.x += Math.cos(a) * h; mk.y += Math.sin(a) * h;
+        if (Math.abs(Math.cos(a) * h) + Math.abs(Math.sin(a) * h) < 6) mk.y += 10;
+        return placeMarker(mk);
+      }
+      const b = t.closest('[data-block]');
+      if (b && b.parentNode.classList.contains('plist')) return b.parentNode.insertBefore(spacer(h, r, false), b);
+      if (b && b.parentNode.classList.contains('sheetrow')) return b.parentNode.insertBefore(spacer(h, r, true), b);
+      if (b && b.closest('.fcard')) {  // floating card: the card itself shifts
+        const card = b.closest('.fcard'), dir = card.style.top ? 1 : -1;
+        if (card.style.top) card.style.top = (parseFloat(card.style.top) + h) + 'px';
+        else card.style.bottom = (parseFloat(card.style.bottom) + h) + 'px';
+        return;
+      }
+      t.style.marginTop = h + 'px';  // map controls
+    };
+    P.hooks.lookalike = function (t, b, c, r) {
+      const mk = markers.find(m => m.el === t);
+      if (mk) {  // a second identical marker nearby, panning with the map
+        c.classList.remove('pf-lookalike');
+        const nm = { el: c, x: mk.x + P.pick([-1, 1], r) * P.between(30, 70, r), y: mk.y + P.pick([-1, 1], r) * P.between(30, 46, r) };
+        placeMarker(nm); mlayer.append(c); markers.push(nm);
+        return;
+      }
+      if (b === t) { c.classList.remove('pf-lookalike'); return b.parentNode.insertBefore(c, b); }
+      const card = b.closest('.fcard');
+      if (card) {  // floating card: clone the card beside it
+        const cc = card.cloneNode(false); cc.classList.add('pf-lookalike');
+        cc.append(c);
+        const rr = card.getBoundingClientRect(), fr = frame.getBoundingClientRect();
+        cc.style.left = (rr.left - fr.left + (card.style.left ? 1 : -1) * (rr.width + 12)) + 'px';
+        cc.style.top = (rr.top - fr.top) + 'px'; cc.style.right = ''; cc.style.bottom = '';
+        frame.append(cc);
+        return;
+      }
+      b.parentNode.insertBefore(c, b);
+    };
+
+    P.action = { id: 'save-place', smallLabel: 'Saved ✓', panelText: 'Place saved to your list.' };
+  };
+})();
+</script>
+</body>
+</html>

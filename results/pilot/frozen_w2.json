@@ -1,0 +1,43 @@
+{
+  "C1": {
+    "ssim_min": 0.92,
+    "frac_max": 0.002,
+    "diff_thr": 20
+  },
+  "C2": {
+    "ssim_min": 0.8727,
+    "frac_max": 0.10822,
+    "diff_thr": 20
+  },
+  "C3": {
+    "mask_thr": 12,
+    "mask_dilate": 3,
+    "tau_in": 0.5,
+    "tau_match": 0.85,
+    "m_unique": 0.1,
+    "tau_target": 0.7,
+    "b": 6.0,
+    "d": 50.0
+  },
+  "C4": {
+    "mask_thr": 12,
+    "mask_dilate": 3,
+    "tau_in": 0.5,
+    "tau_match": 0.85,
+    "m_unique": 0.15,
+    "tau_target": 0.7,
+    "b": 6.0,
+    "d": 25.0
+  },
+  "dev_objective": {
+    "C2": 0.432241310136462,
+    "C3": 0.6416797905945721,
+    "C4": 0.6165031288730429
+  },
+  "tuned_on": "Tier 1 dev",
+  "commit": "c9482cb",
+  "date": "2026-10-22",
+  "hardware": "Apple M3, 8 GB, Darwin 25.5.0",
+  "constraint": "re-find errors (wrong re-aims already wrong at offset 0) <= 1% of re-aims on dev; C2 false alarms <= 2%",
+  "grid_note": "Base grid in tuning_w2_anchored.csv; two extensions past edge values in tuning_w2_anchored_ext.csv and _ext2.csv."
+}

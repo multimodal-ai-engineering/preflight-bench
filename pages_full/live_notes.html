@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Shared notes</title>
+<!-- Tier 1: shared notes document. A second (fictional) user's caret types into the document,
+     inserts line breaks and new paragraphs, so text below reflows and targets shift. -->
+<style>
+  html, body { width:1280px; height:800px; overflow:hidden; margin:0; }
+  * { caret-color: transparent; box-sizing: border-box; animation: none !important; transition: none !important; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.55; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  .app { width: 1280px; height: 800px; display: flex; flex-direction: column; }
+
+  /* header + presence */
+  .hdr { height: 50px; flex: none; display: flex; align-items: center; gap: 12px; padding: 0 20px; background: var(--panel); border-bottom: 1px solid var(--line); }
+  .logo { width: 26px; height: 30px; border: 2px solid var(--accent); border-radius: 3px 9px 3px 3px; position: relative; flex: none; }
+  .logo::after { content: ''; position: absolute; left: 4px; right: 4px; top: 8px; height: 10px; border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); }
+  .ttl { font-weight: 600; font-size: 15px; }
+  .crumb { font-size: 12px; color: var(--muted); }
+  .grow { flex: 1; }
+  .save { font-size: 12px; color: var(--muted); width: 64px; }
+  .pres { display: flex; align-items: center; gap: 0; }
+  .av { width: 30px; height: 30px; border-radius: 50%; color: #fff; font: 600 12px/26px Arial, sans-serif; text-align: center; border: 2px solid var(--panel); padding: 0; margin-left: -6px; }
+  .av:first-child { margin-left: 0; }
+  .typing { font-size: 12px; color: var(--muted); width: 150px; margin-left: 10px; white-space: nowrap; overflow: hidden; display: flex; align-items: center; gap: 6px; }
+  .dots { display: inline-flex; gap: 3px; padding: 4px 6px; border-radius: 9px; background: var(--bg); border: 1px solid var(--line); }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+  .dot.on { background: #d9480f; }
+  .rsel { background: rgba(217, 72, 15, .75); color: #fff; }
+  .sstat { font-size: 12px; color: var(--muted); min-width: 64px; text-align: right; }
+  .share { background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: 7px 16px; font-weight: 600; }
+
+  /* toolbars */
+  .tb { display: flex; align-items: center; gap: 4px; }
+  .tb .tool { height: 30px; min-width: 32px; padding: 0 8px; border: 1px solid transparent; background: transparent; border-radius: 5px; color: var(--ink); font-size: 14px; }
+  .tb .tool:hover { border-color: var(--line); }
+  .tb .sep { width: 1px; height: 20px; background: var(--line); margin: 0 6px; }
+  .tb .lbl { font-size: 12px; color: var(--muted); }
+  .tb-top { height: 42px; flex: none; padding: 0 20px; background: var(--panel); border-bottom: 1px solid var(--line); }
+  .tb-float { position: absolute; z-index: 5; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 5px 8px; box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+  .tb-float.vert { flex-direction: column; padding: 8px 5px; }
+  .tb-float.vert .sep { width: 20px; height: 1px; margin: 4px 0; }
+  .tb-rail { width: 56px; flex: none; flex-direction: column; padding: 14px 0; gap: 6px; background: var(--panel); border-right: 1px solid var(--line); }
+  .tb-rail .sep { width: 24px; height: 1px; margin: 6px 0; }
+  .tb-rail .tool { width: 40px; height: 36px; }
+
+  /* main area */
+  .main { flex: 1; min-height: 0; display: flex; }
+  .outline { width: 200px; flex: none; padding: 18px 14px; background: var(--panel); font-size: 13px; }
+  .outline.l { border-right: 1px solid var(--line); }
+  .outline.r { border-left: 1px solid var(--line); }
+  .outline h4 { margin: 0 0 10px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .oitem { display: block; width: 100%; text-align: left; border: 0; background: transparent; padding: 5px 8px; border-radius: 5px; color: var(--ink); font-size: 13px; }
+  .oitem.sub { padding-left: 22px; color: var(--muted); }
+  .oitem.cur { background: var(--bg); box-shadow: inset 2px 0 0 var(--accent); }
+  .ometa { margin-top: 18px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .canvas { flex: 1; min-width: 0; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: flex-start; gap: 22px; padding-top: 16px; }
+
+  /* the page */
+  .page { position: relative; overflow: hidden; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 26px 44px; flex: none; }
+  .page h1 { font-size: 23px; line-height: 1.25; margin: 0 0 4px; }
+  .page h2 { font-size: 15px; margin: 14px 0 6px; }
+  .meta { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .page p { margin: 0 0 10px; }
+  .chip { display: inline-block; white-space: nowrap; line-height: 20px; padding: 0 8px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--accent); font-size: 12.5px; vertical-align: 1px; }
+  .chip::before { content: '\2197\00a0'; }
+  .cmark { background: rgba(240, 180, 40, .28); border-bottom: 2px solid rgba(220, 150, 20, .8); }
+  .cnum { display: inline-block; width: 16px; height: 16px; border-radius: 50%; background: #e0a419; color: #fff; font: 700 10px/16px Arial, sans-serif; text-align: center; vertical-align: 2px; margin-left: 2px; }
+  .check { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; }
+  .cb { width: 18px; height: 18px; flex: none; padding: 0; border: 1.5px solid var(--muted); background: var(--panel); border-radius: 4px; font: 700 12px/14px Arial, sans-serif; color: #fff; }
+  .cb.on { background: var(--accent); border-color: var(--accent); }
+  .check .who { font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; padding: 0 6px; }
+  .addi { border: 0; background: transparent; color: var(--muted); font-size: 13px; padding: 2px 0; margin: 0 0 6px 28px; }
+  .typed { background: rgba(217, 72, 15, .30); }
+  .ins { border-left: 3px solid #d9480f; padding-left: 8px; }
+  .mk { display: inline; }
+
+  /* comments */
+  .ccol { width: 250px; flex: none; display: flex; flex-direction: column; gap: 12px; padding-top: 70px; }
+  .cmt { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13px; }
+  .page .cmt { margin: 0 0 12px 0; background: var(--bg); border-left: 3px solid #e0a419; }
+  .chead { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .mini { width: 20px; height: 20px; border-radius: 50%; color: #fff; font: 600 9px/20px Arial, sans-serif; text-align: center; flex: none; }
+  .chead b { font-size: 12px; }
+  .chead span { font-size: 11px; color: var(--muted); }
+  .cact { display: flex; gap: 6px; margin-top: 6px; }
+  .cbtn { border: 1px solid var(--line); background: var(--panel); border-radius: 5px; padding: 2px 10px; font-size: 12px; }
+  .cbtn.res { color: var(--accent); border-color: var(--accent); }
+
+  /* remote caret */
+  .rcur { position: absolute; width: 2px; height: 19px; background: #d9480f; z-index: 4; pointer-events: none; }
+  .rflag { position: absolute; z-index: 4; pointer-events: none; background: #d9480f; color: #fff; font: 600 11.5px/17px Arial, sans-serif; padding: 0 6px; border-radius: 3px 3px 3px 0; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script>
+// Shared runtime for the FULL-study pages (PreflightBench-Live). pages_full/build.py inlines it into each page.
+// Fresh code path from the pilot runtime, extended with: template variants (?v=), dialog kinds, slow load,
+// near/away background motion, virtual (canvas) targets, and dialog/settled truth.
+// All motion uses setTimeout/setInterval and Date.now(), so Playwright's clock controls it. No rAF.
+(function () {
+  const Q = new URLSearchParams(location.search);
+  const seed = parseInt(Q.get('seed') || '1', 10);
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const bg = mulberry32(seed * 7919 + 1);       // background motion and content
+  const ev = mulberry32(seed * 104729 + 7);     // seeded events only
+  const P = {
+    seed, Q, mulberry32,
+    variant: parseInt(Q.get('v') || '0', 10),   // template variant: layout + theme
+    motion: Q.get('motion') || 'med',
+    rand: bg, evRand: ev,
+    pick: (a, r = bg) => a[Math.floor(r() * a.length)],
+    between: (lo, hi, r = bg) => lo + (hi - lo) * r(),
+    level: (low, med, high) => ({ low, med, high, none: null }[Q.get('motion') || 'med']),
+    t0: Date.now(),
+    hooks: {},
+    virtual: {},  // canvas targets: id -> {box: () => [x,y,w,h] | null, valid: () => bool}
+  };
+  window.P = P;
+
+  // Fictional vocabulary only.
+  const WORDS = ('aster bramble cobalt dune ember fennel glacier heron iris jasper kelp lark moss nettle opal ' +
+    'plover quill reed sorrel tansy umbra vesper wren yucca zinnia beacon cinder drift ferry gable hollow ' +
+    'inlet jetty knoll ledge mantle nook outpost prism ridge sable tarn').split(' ');
+  P.words = (n, r = bg) => Array.from({ length: n }, () => P.pick(WORDS, r)).join(' ');
+  P.sentence = (n, r = bg) => { const s = P.words(n, r); return s[0].toUpperCase() + s.slice(1) + '.'; };
+  P.name = (r = bg) => P.pick(['Avery', 'Bo', 'Cass', 'Dev', 'Eli', 'Fen', 'Gray', 'Hollis', 'Indy', 'Jules', 'Kit', 'Lane', 'Mar', 'Noor', 'Oak', 'Pax'], r) +
+    ' ' + P.pick(['Ashdown', 'Brightwater', 'Coldbrook', 'Dunmore', 'Elmsworth', 'Fairholt', 'Greyling', 'Hartwell'], r);
+
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  P.el = el;
+
+  // ---------- themes (template variants) ----------
+  // Four palettes x font stacks. Pages also change layout by P.variant; the palette only changes look.
+  const THEMES = [
+    { bg: '#f6f7f9', panel: '#ffffff', ink: '#1d232a', muted: '#66707a', accent: '#2e6bd9', line: '#dde2e8', font: '-apple-system, Helvetica, Arial, sans-serif' },
+    { bg: '#fbf8f3', panel: '#fffdf9', ink: '#2a2420', muted: '#7a6f66', accent: '#b4552d', line: '#e8dfd3', font: 'Georgia, "Times New Roman", serif' },
+    { bg: '#11161c', panel: '#1a222b', ink: '#e7ecf1', muted: '#93a1ae', accent: '#3fb68b', line: '#2a3540', font: 'Verdana, Geneva, sans-serif' },
+    { bg: '#eef3ef', panel: '#f9fcfa', ink: '#1c2a22', muted: '#5f7368', accent: '#6b4fbb', line: '#d3dfd7', font: '"Trebuchet MS", Tahoma, sans-serif' },
+  ];
+  P.theme = THEMES[P.variant % THEMES.length];
+  P.applyTheme = function () {
+    const t = P.theme, s = document.documentElement.style;
+    Object.entries(t).forEach(([k, v]) => s.setProperty('--' + k, v));
+  };
+
+  // ---------- targets ----------
+  function target() {
+    const id = window.__pfTarget || Q.get('target');
+    return id ? document.querySelector(`[data-target-id="${id}"]`) : null;
+  }
+  P.target = target;
+  function targetId() { return window.__pfTarget || Q.get('target'); }
+  function blockOf(t) { return (P.hooks.blockOf && P.hooks.blockOf(t)) || t.closest('[data-block]') || t; }
+
+  // ---------- events ----------
+  function spacer(h, r) {
+    const s = el('div', 'pf-inserted');
+    s.style.cssText = `height:${h}px;box-sizing:border-box;background:var(--panel);border:1px solid var(--line);color:var(--muted);` +
+      `border-radius:6px;margin:0 0 8px 0;padding:8px 12px;font-size:13px;overflow:hidden;grid-column:1/-1;`;
+    s.textContent = P.pick(['Update available. ', 'Section expanded. ', 'New items below. ', 'Notice: '], r) + P.sentence(10, r);
+    return s;
+  }
+  function doMoved(r) {
+    const id = targetId();
+    if (P.virtual[id] && P.hooks.moveVirtual) return P.hooks.moveVirtual(id, r);
+    const t = target(); if (!t) return;
+    const h = Math.round(P.between(10, 300, r));
+    if (P.hooks.moveTarget) return P.hooks.moveTarget(t, h, r);
+    const b = blockOf(t);
+    b.parentNode.insertBefore(spacer(h, r), b);
+  }
+  function doLookalike(r) {
+    const id = targetId();
+    if (P.virtual[id] && P.hooks.lookalikeVirtual) return P.hooks.lookalikeVirtual(id, r);
+    const t = target(); if (!t) return;
+    const b = blockOf(t);
+    const c = b.cloneNode(true);
+    c.querySelectorAll('[data-target-id]').forEach(e => e.removeAttribute('data-target-id'));
+    c.removeAttribute('data-target-id');
+    c.querySelectorAll('[data-vary]').forEach(e => {
+      const n = e.textContent.split(/\s+/).length;
+      e.textContent = e.dataset.vary === 'num' ? String(Math.round(P.between(10, 999, r))) : P.sentence(Math.max(2, n), r);
+    });
+    // Mark the clone without touching its class when the clone IS the control (no block): truth compares
+    // tag + text + className, so an extra class would hide an identical look-alike.
+    if (b === t) c.dataset.pfLookalike = '1'; else c.classList.add('pf-lookalike');
+    if (P.hooks.lookalike) return P.hooks.lookalike(t, b, c, r);
+    b.parentNode.insertBefore(c, b);
+  }
+  // Dialog kinds: modal overlays that cover part of the page (label `dialog`).
+  const DIALOGS = ['session_timeout', 'cookie_consent', 'styled_dialog'];
+  function doDialog(r, kind) {
+    kind = kind || P.pick(DIALOGS, r);
+    let c = el('div', 'pf-cover pf-dialog');
+    if (kind === 'cookie_consent') {
+      const h = 120 + Math.round(r() * 50), bottom = r() < .5;
+      c.style.cssText = `position:fixed;left:0;right:0;${bottom ? 'bottom' : 'top'}:0;height:${h}px;background:#1f2429;color:#f1f1f1;` +
+        'z-index:900;padding:18px 36px;box-sizing:border-box;font:14px -apple-system,Arial,sans-serif;';
+      c.append(el('div', null, 'We use cookies to keep you signed in and to measure traffic. ' + P.sentence(6, r)));
+      const row = el('div'); row.style.marginTop = '10px';
+      ['Accept all', 'Reject', 'Settings'].forEach(t => { const b = el('button', null, t); b.style.cssText = 'margin-right:8px;padding:6px 12px;font:inherit;'; row.append(b); });
+      c.append(row);
+    } else {
+      c.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,18,.5);z-index:900;display:flex;align-items:center;justify-content:center;';
+      const d = el('div');
+      if (kind === 'session_timeout') {
+        d.style.cssText = 'background:#fff;color:#222;border-radius:8px;padding:24px 28px;width:400px;font:14px -apple-system,Arial,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.3);';
+        d.append(el('h3', null, 'Your session is about to expire'), el('p', null, 'For your security you will be signed out in 2 minutes. ' + P.sentence(6, r)));
+        const b = el('button', null, 'Stay signed in'); b.style.cssText = 'padding:7px 14px;font:inherit;'; d.append(b);
+      } else {  // styled like the page: same palette and font
+        d.style.cssText = 'background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:22px 26px;width:420px;font-family:var(--font);font-size:14px;';
+        d.append(el('h3', null, P.pick(['Before you continue', 'Quick question', 'Something changed'], r)), el('p', null, P.sentence(14, r)));
+        const b = el('button', null, P.pick(['Got it', 'Continue', 'OK'], r));
+        b.style.cssText = 'padding:7px 14px;background:var(--accent);color:#fff;border:0;border-radius:6px;font:inherit;'; d.append(b);
+      }
+      c.append(d);
+    }
+    c.dataset.coverKind = kind;
+    document.body.append(c);
+  }
+  // Non-dialog covers over the target: toast or popover (they cover the click but are not dialogs).
+  function doCovered(r) {
+    const id = targetId(), t = target();
+    const bx = P.virtual[id] ? P.virtual[id].box() : (t && t.getBoundingClientRect() && (b => [b.left, b.top, b.width, b.height])(t.getBoundingClientRect()));
+    if (!bx) return;
+    const cx = bx[0] + bx[2] / 2, cy = bx[1] + bx[3] / 2;
+    const kind = P.pick(['toast', 'popover'], r);
+    const c = el('div', 'pf-cover');
+    const w = kind === 'toast' ? 320 : 240, h = kind === 'toast' ? 56 : 110;
+    const left = Math.max(0, Math.min(1280 - w, cx - w / 2 + (r() - .5) * (w * .5)));
+    const top = Math.max(0, Math.min(800 - h, cy - h / 2 + (r() - .5) * (h * .5)));
+    c.style.cssText = `position:fixed;left:${left}px;top:${top}px;width:${w}px;height:${h}px;z-index:900;box-sizing:border-box;` +
+      'padding:12px 14px;border-radius:8px;font:13px -apple-system,Arial,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.18);' +
+      (kind === 'toast' ? 'background:#2b3137;color:#fff;' : 'background:#fff;color:#222;border:1px solid #ccd;');
+    c.textContent = kind === 'toast' ? 'Saved. ' + P.words(4, r) : 'Tip: ' + P.sentence(9, r);
+    c.dataset.coverKind = kind;
+    document.body.append(c);
+  }
+  function doGone(r) {
+    const id = targetId();
+    if (P.virtual[id] && P.hooks.goneVirtual) return P.hooks.goneVirtual(id, r);
+    const t = target(); if (!t) return;
+    const kind = P.pick(['removed', 'disabled', 'label'], r);
+    if (kind === 'removed') t.remove();
+    else if (kind === 'disabled') { t.disabled = true; t.dataset.pfDisabled = '1'; t.style.opacity = '0.4'; t.style.pointerEvents = 'none'; }
+    else { t.textContent = t.dataset.alt || (t.textContent.trim() + 'd'); }
+    document.documentElement.dataset.goneKind = kind;
+  }
+  // Slow load: the target's block is swapped for a loading skeleton, and comes back after `slow_ms`
+  // (it may come back at a different height, so neighbours shift).
+  function doSlowLoad(r) {
+    const t = target(); if (!t) return;
+    const b = blockOf(t);
+    const sk = el('div', 'pf-skeleton');
+    const rect = b.getBoundingClientRect();
+    sk.style.cssText = `height:${Math.max(20, rect.height + Math.round(P.between(-10, 40, r)))}px;background:var(--line);border-radius:6px;margin:0 0 8px 0;`;
+    const disp = b.style.display;
+    b.style.display = 'none';
+    b.parentNode.insertBefore(sk, b);
+    const back = parseFloat(Q.get('slow_ms') || '3000');
+    setTimeout(() => { sk.remove(); b.style.display = disp; }, back);
+  }
+  const EVENTS = { none: () => {}, moved: doMoved, moved_lookalike: doLookalike, covered: doCovered, gone: doGone,
+    dialog: r => doDialog(r), slow_load: doSlowLoad };
+  P.events = EVENTS;
+  function schedule(name, at) {
+    if (!name || name === 'none' || !(at >= 0)) return;
+    setTimeout(() => { EVENTS[name](ev); document.documentElement.dataset['ev_' + name] = String(Date.now() - P.t0); }, at);
+  }
+  P.startEvents = function () {
+    schedule(Q.get('event'), parseFloat(Q.get('event_at')));
+    schedule(Q.get('event2'), parseFloat(Q.get('event2_at')));
+  };
+
+  // ---------- background motion near / away from the target (?bg=near|away) ----------
+  // A spinner or a typing caret, placed within 20-60 px of the target ('near') or far from it ('away').
+  P.startBgMotion = function () {
+    const where = Q.get('bg'); if (!where || where === 'none') return;
+    const r = mulberry32(seed * 31337 + 3);
+    const id = targetId(), t = target();
+    const bx = P.virtual[id] ? P.virtual[id].box() : (t ? (b => [b.left, b.top, b.width, b.height])(t.getBoundingClientRect()) : null);
+    if (!bx) return;
+    const kind = P.pick(['spinner', 'caret'], r);
+    const s = el('div', 'pf-bgmotion');
+    let x, y;
+    if (where === 'near') {
+      const side = P.pick(['l', 'r', 'u', 'd'], r), d = P.between(20, 60, r);
+      x = side === 'l' ? bx[0] - d - 18 : side === 'r' ? bx[0] + bx[2] + d : bx[0] + bx[2] / 2;
+      y = side === 'u' ? bx[1] - d - 18 : side === 'd' ? bx[1] + bx[3] + d : bx[1] + bx[3] / 2 - 9;
+    } else {
+      do { x = P.between(20, 1240, r); y = P.between(20, 760, r); } while (Math.abs(x - bx[0]) < 300 && Math.abs(y - bx[1]) < 200);
+    }
+    x = Math.max(2, Math.min(1260, x)); y = Math.max(2, Math.min(780, y));
+    s.style.cssText = `position:fixed;left:${x}px;top:${y}px;width:18px;height:18px;z-index:850;pointer-events:none;`;
+    document.body.append(s);
+    let k = 0;
+    if (kind === 'spinner') {
+      s.style.border = '3px solid var(--line)'; s.style.borderTopColor = 'var(--accent)'; s.style.borderRadius = '50%'; s.style.boxSizing = 'border-box';
+      setInterval(() => { s.style.transform = `rotate(${(k += 30) % 360}deg)`; }, 50);
+    } else {
+      s.style.width = '2px'; s.style.background = 'var(--ink)';
+      setInterval(() => { s.style.visibility = (k++ % 2) ? 'hidden' : 'visible'; }, 530);
+    }
+    document.documentElement.dataset.bgKind = kind;
+  };
+
+  // ---------- last action (worked set) ----------
+  // Page defines P.action = {id, smallSel?, smallLabel, panelText}. Outcome from ?outcome=.
+  P.wireAction = function () {
+    const cfg = P.action; if (!cfg) return;
+    const btn = document.querySelector(`[data-action-id="${cfg.id}"]`); if (!btn) return;
+    btn.dataset.label = btn.textContent;
+    btn.addEventListener('click', () => {
+      const o = Q.get('outcome') || 'success_clear';
+      if (o === 'success_clear') {
+        const p = el('div', 'pf-panel');
+        const b = btn.getBoundingClientRect();
+        const top = Math.min(800 - 130, b.bottom + 10), left = Math.max(10, Math.min(1280 - 360, b.left - 120));
+        p.style.cssText = `position:fixed;left:${left}px;top:${top}px;width:340px;height:110px;background:var(--panel);` +
+          'border:2px solid var(--accent);border-radius:10px;padding:16px 18px;box-sizing:border-box;color:var(--ink);font-size:15px;z-index:800;font-family:var(--font);';
+        p.append(el('div', null, cfg.panelText), el('div', null, P.sentence(5)));
+        document.body.append(p);
+      } else if (o === 'success_small') {
+        const e = cfg.smallSel ? document.querySelector(cfg.smallSel) : btn;
+        e.textContent = cfg.smallLabel;
+      } else if (o === 'failed_error') {
+        const t = el('div', 'pf-error', cfg.errorText || "Couldn't complete that. Try again.");
+        t.style.cssText = 'position:fixed;right:24px;bottom:24px;background:#b3261e;color:#fff;padding:12px 16px;border-radius:8px;font-size:14px;z-index:950;';
+        document.body.append(t);
+        setTimeout(() => t.remove(), 3000);
+      } // failed_silent: nothing
+    });
+  };
+
+  // ---------- truth, read by the generator ----------
+  function validDom(t) {
+    return !!(t && t.isConnected && !t.disabled && !t.dataset.pfDisabled && t.offsetParent !== null &&
+      (t.dataset.label == null || t.textContent === t.dataset.label));
+  }
+  function topCover(x, y) {
+    const e = document.elementFromPoint(x, y);
+    return e && e.closest('.pf-cover, .pf-panel, .pf-skeleton') ? e : null;
+  }
+  function hits(id, t, x, y) {
+    if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return false;
+    const v = P.virtual[id];
+    if (v) {  // canvas target: inside its render-state box, and the canvas itself is what is on top
+      const b = v.box(); if (!b || !v.valid()) return false;
+      if (!(x >= b[0] && x < b[0] + b[2] && y >= b[1] && y < b[1] + b[3])) return false;
+      const e = document.elementFromPoint(x, y);
+      return !!(e && e.tagName === 'CANVAS' && (!v.canvas || e === v.canvas));
+    }
+    const e = document.elementFromPoint(x, y);
+    return !!(e && (e === t || t.contains(e)));
+  }
+  function dialogVisible() {
+    return Array.from(document.querySelectorAll('.pf-dialog')).some(d => { const b = d.getBoundingClientRect(); return b.width > 0 && b.height > 0; });
+  }
+  window.__truth = function (px, py) {
+    const id = targetId(), v = P.virtual[id], t = v ? null : target();
+    const ok = v ? v.valid() : validDom(t);
+    const out = { go_ok: ok && hits(id, t, px, py), target_exists: ok, target_box: null, hit_mask: null,
+      covered: false, lookalike_boxes: [], center_hit: false, dialog: dialogVisible(),
+      overlay: !!document.querySelector('.pf-cover'), click_on_cover: !!topCover(px, py) };
+    const b = v ? v.box() : (t && t.isConnected && t.offsetParent !== null ? (r => [r.left, r.top, r.width, r.height])(t.getBoundingClientRect()) : null);
+    if (b) {
+      out.target_box = b;
+      const cx = b[0] + b[2] / 2, cy = b[1] + b[3] / 2;
+      out.center_hit = ok && hits(id, t, cx, cy);
+      const inView = cx >= 0 && cy >= 0 && cx < innerWidth && cy < innerHeight;
+      out.covered = ok && inView && !out.center_hit;
+      const mask = [];
+      for (let y = Math.ceil(b[1] / 4) * 4; y < b[1] + b[3]; y += 4)
+        for (let x = Math.ceil(b[0] / 4) * 4; x < b[0] + b[2]; x += 4)
+          if (ok && hits(id, t, x, y)) mask.push([x, y]);
+      out.hit_mask = mask;
+      if (t) {
+        const sig = e => e.tagName + '|' + e.textContent.trim() + '|' + e.className;
+        const s = sig(t);
+        document.querySelectorAll(t.tagName).forEach(e => {
+          if (e === t || sig(e) !== s) return;
+          const r = e.getBoundingClientRect();
+          if (r.width > 0 && r.bottom > 0 && r.top < innerHeight) out.lookalike_boxes.push([r.left, r.top, r.width, r.height]);
+        });
+      } else if (P.hooks.virtualLookalikes) out.lookalike_boxes = P.hooks.virtualLookalikes(id);
+      out.unique = out.lookalike_boxes.length === 0;
+    }
+    out.correct_action = out.go_ok ? 'go' : (out.target_exists && out.center_hit ? 'reaim' : 'replan');
+    return out;
+  };
+  window.__targets = () => {
+    const dom = Array.from(document.querySelectorAll('[data-target-id]')).filter(e => e.offsetParent !== null).map(e => {
+      const b = e.getBoundingClientRect();
+      return { id: e.dataset.targetId, box: [b.left, b.top, b.width, b.height] };
+    });
+    const virt = Object.entries(P.virtual).map(([id, v]) => ({ id, box: v.box() })).filter(o => o.box);
+    return dom.concat(virt);
+  };
+  window.__actionBox = () => {
+    const b = document.querySelector('[data-action-id]'); if (!b) return null;
+    const r = b.getBoundingClientRect(); return [r.left, r.top, r.width, r.height];
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    P.applyTheme();
+    if (P.init) P.init();
+    document.querySelectorAll('[data-target-id]').forEach(e => { if (e.dataset.label == null) e.dataset.label = e.textContent; });
+    P.wireAction();
+    P.startEvents();
+    // background motion starts after targets exist; the generator sets the target before load via ?target=
+    setTimeout(() => P.startBgMotion(), 0);
+  });
+})();
+
+</script>
+<script>
+(function () {
+  const V = P.variant % 4;
+  // Four layouts: outline side, page width, toolbar placement, comment placement.
+  const L = [
+    { outline: 'l', pageW: 640, toolbar: 'top',   comments: 'margin' },
+    { outline: 'r', pageW: 820, toolbar: 'float', comments: 'inline' },
+    { outline: null, pageW: 800, toolbar: 'rail', comments: 'margin' },
+    { outline: 'l', pageW: 700, toolbar: 'vfloat', comments: 'inline' },
+  ][V];
+  const el = P.el;
+  const REMOTE = '#d9480f', C2 = '#1c7ed6', C3 = '#2f9e44';
+  const remoteName = P.name(), name2 = P.name(), name3 = P.name();
+  const ini = n => n.split(' ').map(s => s[0]).join('');
+  function tgt(e, id, alt) { e.dataset.targetId = id; e.dataset.alt = alt; return e; }
+  function vary(text) { const s = el('span', null, text); s.dataset.vary = 'text'; return s; }
+  const typeParas = [];
+
+  P.action = { id: 'share', smallLabel: 'Shared ✓', smallSel: '#sstat', panelText: 'Link copied to share.' };
+
+  function header() {
+    const h = el('div', 'hdr');
+    const t = el('div'); t.append(el('div', 'ttl', 'Field notes: ' + P.words(2).replace(/^\w/, c => c.toUpperCase())), el('div', 'crumb', 'Team space / Planning'));
+    const save = el('div', 'save', 'Saved'); save.id = 'save';
+    const pres = el('div', 'pres');
+    [[remoteName, REMOTE, 'av-remote', 'Following'], [name2, C2, 'av-2', 'Following'], [name3, C3, null]].forEach(([n, c, id, alt]) => {
+      const a = el('button', 'av', ini(n)); a.style.background = c; a.title = n;
+      if (id) { tgt(a, id, ini(n) + '*'); a.classList.add(id); }
+      pres.append(a);
+    });
+    const typing = el('div', 'typing'); typing.id = 'typing';
+    const dots = el('span', 'dots'); dots.append(el('span', 'dot'), el('span', 'dot'), el('span', 'dot'));
+    typing.append(dots, el('span', null, remoteName.split(' ')[0] + ' is typing'));
+    const ss = el('div', 'sstat', 'Private'); ss.id = 'sstat';
+    const sh = el('button', 'share', 'Share'); sh.dataset.actionId = 'share';
+    h.append(el('div', 'logo'), t, save, el('div', 'grow'), pres, typing, ss, sh);
+    return h;
+  }
+
+  function toolbar(kind) {
+    const cls = { top: 'tb tb-top', float: 'tb tb-float', vfloat: 'tb tb-float vert', rail: 'tb tb-rail' }[kind];
+    const tb = el('div', cls);
+    const mk = (html, id, alt, title) => { const b = el('button', 'tool'); b.innerHTML = html; b.title = title; if (id) tgt(b, id, alt); return b; };
+    if (kind === 'top') { const s = el('span', 'lbl', 'Body text'); tb.append(s, el('span', 'sep')); }
+    tb.append(mk('<b>B</b>', 'tool-bold', 'B*', 'Bold'), mk('<i>I</i>', 'tool-italic', 'I*', 'Italic'),
+      mk('<u>U</u>', null, null, 'Underline'), el('span', 'sep'),
+      mk(kind === 'top' ? 'Link' : '&#8599;', 'tool-link', kind === 'top' ? 'Linked' : '*', 'Link'),
+      mk(kind === 'top' ? 'Comment' : '&#9998;', 'tool-comment', kind === 'top' ? 'Commented' : '*', 'Comment'));
+    if (kind === 'top') tb.append(el('span', 'sep'), mk('&#8226; List', null, null, 'List'));
+    return tb;
+  }
+
+  function outline() {
+    const o = el('div', 'outline ' + L.outline);
+    o.append(el('h4', null, 'Outline'));
+    [['Overview', 'out-overview', false], ['Checklist', 'out-check', true], ['Open threads', 'out-threads', true], ['Next steps', null, true]].forEach(([t, id, sub], i) => {
+      const b = el('button', 'oitem' + (sub ? ' sub' : '') + (i === 0 ? ' cur' : ''), t);
+      if (id) tgt(b, id, t + ' (2)');
+      o.append(b);
+    });
+    const m = el('div', 'ometa'); m.append(el('div', null, '3 editors · 2 open comments'), el('div', null, 'Last change: just now'));
+    o.append(m);
+    return o;
+  }
+
+  function para(parts) {
+    const p = el('p'); p.dataset.block = '';
+    parts.forEach(x => p.append(typeof x === 'string' ? vary(x) : x, document.createTextNode(' ')));
+    typeParas.push(p);
+    return p;
+  }
+  function chip(id, text) { return tgt(el('button', 'chip', text), id, text + ' (moved)'); }
+  function cmark(n, text) { const s = el('span', 'cmark'); s.append(vary(text), el('span', 'cnum', String(n))); return s; }
+  function checkRow(i, text, on, who) {
+    const r = el('div', 'check'); r.dataset.block = '';
+    const b = tgt(el('button', 'cb cb-' + i + (on ? ' on' : '')), 'check-' + i, '✓');
+    b.addEventListener('click', () => b.classList.toggle('on'));
+    r.append(b, vary(text));
+    if (who) r.append(el('span', 'who', who));
+    return r;
+  }
+  function comment(n, author, color, text, withReply) {
+    const c = el('div', 'cmt'); c.dataset.block = '';
+    const h = el('div', 'chead'); const m = el('div', 'mini', ini(author)); m.style.background = color;
+    h.append(m, el('b', null, author), el('span', null, '#' + n + ' · ' + (n * 7) + ' min ago'));
+    const tx = el('div'); tx.append(vary(P.sentence(9 + n)));
+    const a = el('div', 'cact');
+    if (withReply) a.append(tgt(el('button', 'cbtn rp-' + n, 'Reply'), 'reply-' + n, 'Replied'));
+    a.append(tgt(el('button', 'cbtn res rs-' + n, 'Resolve'), 'resolve-' + n, 'Resolved'));
+    c.append(h, tx, a);
+    return c;
+  }
+
+  function page() {
+    const pg = el('div', 'page'); pg.id = 'page';
+    pg.style.width = L.pageW + 'px';
+    pg.style.height = (L.toolbar === 'top' ? 676 : 718) + 'px';
+    if (L.toolbar === 'float') pg.style.paddingTop = '62px';
+    const h1 = el('h1', null, 'Week ' + (10 + Math.floor(P.rand() * 30)) + ' planning notes');
+    const meta = el('div', 'meta', 'Edited by ' + remoteName + ', ' + name2 + ' and you');
+    const n = L.pageW > 760 ? 1.3 : 1;  // wide pages get longer paragraphs
+    const p1 = para([P.sentence(Math.round(13 * n)), chip('chip-brief', 'Brief, ' + P.words(1)), P.sentence(6)]);
+    const h2a = el('h2', null, 'Checklist');
+    const rows = [checkRow(1, 'Draft the ' + P.words(2) + ' summary', false, ini(name2)),
+      checkRow(2, 'Collect the ' + P.words(1) + ' figures from last month', true, null),
+      checkRow(3, 'Book a slot for the ' + P.words(1) + ' review', false, ini(remoteName))];
+    const add = tgt(el('button', 'addi', '+ Add item'), 'add-item', '+ Add item (1)');
+    const p2 = para([P.sentence(Math.round(8 * n)), cmark(1, P.words(5)), P.sentence(Math.round(7 * n))]);
+    const h2b = el('h2', null, 'Open threads');
+    const p3 = para([P.sentence(Math.round(7 * n)), chip('chip-ledger', 'Ledger ' + P.words(1)), P.sentence(5), cmark(2, P.words(4)), P.sentence(Math.round(6 * n))]);
+    const p4 = para([P.sentence(Math.round(14 * n)), P.sentence(Math.round(10 * n))]);
+    const c1 = comment(1, name2, C2, null, true), c2 = comment(2, remoteName, REMOTE, null, false);
+    pg.append(h1, meta, p1, h2a, ...rows, add, p2);
+    if (L.comments === 'inline') pg.append(c1);
+    pg.append(h2b, p3);
+    if (L.comments === 'inline') pg.append(c2);
+    pg.append(p4);
+    return { pg, comments: [c1, c2] };
+  }
+
+  function build() {
+    const app = document.getElementById('app');
+    app.append(header());
+    if (L.toolbar === 'top') app.append(toolbar('top'));
+    const main = el('div', 'main');
+    const cv = el('div', 'canvas'); cv.id = 'canvas';
+    const { pg, comments } = page();
+    if (L.toolbar === 'vfloat') {  // vertical floating pill in the gutter left of the page
+      const tb = toolbar('vfloat'); tb.style.left = '24px'; tb.style.top = '70px'; cv.append(tb);
+      cv.style.justifyContent = 'flex-start'; cv.style.paddingLeft = '110px';
+    }
+    cv.append(pg);
+    if (L.toolbar === 'float') {  // horizontal floating pill over the top of the page
+      const tb = toolbar('float'); tb.style.left = '50%'; tb.style.top = '30px'; tb.style.marginLeft = '-' + (L.pageW / 2 - 30) + 'px'; cv.append(tb);
+    }
+    if (L.comments === 'margin') { const col = el('div', 'ccol'); col.append(...comments); cv.append(col); }
+    if (L.outline === 'l') main.append(outline());
+    if (L.toolbar === 'rail') main.append(toolbar('rail'));
+    main.append(cv);
+    if (L.outline === 'r') main.append(outline());
+    app.append(main);
+  }
+
+  // Event hooks: the target's block is the paragraph / checklist row / comment card; toolbar, outline and
+  // presence controls are their own block. A 'moved' event in the document is a paragraph the remote user
+  // pastes above the block; in the chrome it is extra space inserted before the control.
+  P.hooks.blockOf = t => t.closest('[data-block]') || t;
+  P.hooks.moveTarget = function (t, h, r) {
+    const b = P.hooks.blockOf(t);
+    const s = el('div', 'pf-inserted');
+    if (b.closest('#page')) {
+      s.className = 'pf-inserted ins';
+      s.style.cssText = `height:${h}px;overflow:hidden;margin:0 0 10px 0;color:var(--ink);`;
+      s.textContent = Array.from({ length: Math.ceil(h / 18) }, () => P.sentence(9, r)).join(' ');
+    } else {
+      const cs = getComputedStyle(b.parentNode);
+      const row = cs.display.includes('flex') && cs.flexDirection === 'row';
+      s.style.cssText = row ? `width:${Math.round(24 + h / 3)}px;height:24px;flex:none;border-radius:5px;background:var(--line);`
+        : `height:${Math.round(h / 2)}px;flex:none;border-radius:5px;background:var(--line);margin:0 0 6px 0;`;
+    }
+    // Right-packed header controls shift when space is added after them; everything else when added before.
+    const after = !b.closest('#page') && b.closest('.hdr') && b.getBoundingClientRect().left > 640;
+    b.parentNode.insertBefore(s, after ? b.nextSibling : b);
+  };
+  // A control that is its own block is cloned as-is, so the copy is an exact look-alike.
+  P.hooks.lookalike = function (t, b, c) {
+    if (b === t) c.classList.remove('pf-lookalike');
+    b.parentNode.insertBefore(c, b);
+  };
+
+  P.init = function () {
+    build();
+    const pg = document.getElementById('page');
+    const cps = P.level(4, 9, 16);              // characters per second of the remote user
+    const enterP = P.level(0.06, 0.16, 0.28);   // chance a phrase ends with a new paragraph
+    const pauseMs = P.level([700, 1800], [110, 175], [60, 150]);  // med/high: no gap over 200 ms
+    const r = P.mulberry32(P.seed * 4099 + 17 + V);  // typing stream
+    const cur = el('div', 'rcur'), flag = el('div', 'rflag', remoteName);
+    flag.style.background = REMOTE;
+    pg.append(cur, flag);
+    const save = document.getElementById('save'), typing = document.getElementById('typing');
+    let span, txt, mk, lastType = -1e9, saveT = null, newParas = 0;
+
+    function visibleParas() {
+      // Only paragraphs on screen (not hidden, not pushed below the bottom of the page by earlier edits).
+      const pb = pg.getBoundingClientRect();
+      const ok = typeParas.filter(q => { const b = q.getBoundingClientRect(); return q.isConnected && b.height > 0 && b.top > pb.top && b.bottom < pb.bottom - 50; });
+      return ok.length ? ok : typeParas;
+    }
+    function startSpan(p) {
+      // Type into the first text run of a paragraph, so the rest of it (chips, comment marks) reflows.
+      const host = p.querySelector('[data-vary]') || p;
+      span = el('span', 'typed'); txt = document.createTextNode(''); mk = el('span', 'mk');
+      span.append(txt, mk);
+      const at = Math.floor(r() * 3);  // at the start, or after the first sentence
+      if (at === 0 || !host.firstChild || host.firstChild.nodeType !== 3) host.insertBefore(span, host.insertBefore(document.createTextNode(' '), host.firstChild));
+      else {
+        const tn = host.firstChild, i = tn.data.indexOf('. ');
+        if (i < 0) host.insertBefore(span, tn); else { tn.splitText(i + 2); host.insertBefore(span, tn.nextSibling); }
+      }
+    }
+    function newParagraph() {
+      // Remote user presses Enter: a new paragraph appears below the current one; everything below shifts.
+      const p = span.closest('p') || typeParas[0];
+      const np = el('p', 'ins'); np.dataset.block = ''; const v = vary(''); np.append(v);
+      p.parentNode.insertBefore(np, p.nextSibling);
+      typeParas.push(np); newParas++;
+      span = el('span', 'typed'); txt = document.createTextNode(''); mk = el('span', 'mk');
+      span.append(txt, mk); v.append(span);
+    }
+    function place() {
+      const b = mk.getBoundingClientRect(), pb = pg.getBoundingClientRect();
+      const vis = mk.isConnected && b.height > 0;
+      const x = b.left - pb.left - pg.clientLeft, y = b.top - pb.top - pg.clientTop;
+      cur.style.display = flag.style.display = vis ? '' : 'none';
+      cur.style.left = x + 'px'; cur.style.top = y + 'px';
+      flag.style.left = x + 'px'; flag.style.top = (y - 17) + 'px';
+    }
+    function saving() {
+      save.textContent = 'Saving…'; clearTimeout(saveT);
+      saveT = setTimeout(() => { save.textContent = 'Saved'; }, 800);
+    }
+    startSpan(P.pick(visibleParas(), r));
+    place();
+    if (!cps) return;
+
+    let buf = '', del = 0, selS = null;
+    function step() {
+      let wait = 1000 / cps * P.between(0.6, 1.4, r);
+      // Spaces are never a step on their own (a trailing space can collapse and show nothing), so every
+      // step changes pixels: a space is typed together with the next letter, and deleted with the last one.
+      // Backspacing a word: the remote user first selects it (shown as a selection), then deletes it in one go.
+      if (del === 1) { const w = txt.data.lastIndexOf(' '); selS = el('span', 'rsel', txt.data.slice(w + 1)); txt.data = txt.data.slice(0, w); span.insertBefore(selS, mk); del = 2; wait = P.between(pauseMs[0], pauseMs[1], r); }
+      else if (del === 2) { selS.remove(); selS = null; del = 0; }
+      else {
+        if (!buf) buf = (txt.data ? ' ' : '') + P.words(1 + Math.floor(r() * 3), r);
+        let c = buf[0]; buf = buf.slice(1);
+        if (c === ' ' && buf) { c += buf[0]; buf = buf.slice(1); }
+        txt.data += c;
+        if (!buf) {  // end of a phrase: pause, maybe backspace a word, maybe Enter or jump elsewhere
+          wait = P.between(pauseMs[0], pauseMs[1], r);
+          const u = r();
+          if (u < 0.15 && txt.data.indexOf(' ') > 0) del = 1;
+          else if (u < 0.15 + enterP && newParas < 5 && visibleParas().indexOf(span.closest('p')) >= 0) newParagraph();
+          else if (u > 0.82 || txt.data.length > 110 || visibleParas().indexOf(span.closest('p')) < 0) startSpan(P.pick(visibleParas(), r));
+        }
+      }
+      lastType = Date.now();
+      place(); saving();
+      setTimeout(step, wait);
+    }
+    setTimeout(step, 150);
+
+    // Blinking remote caret (solid while typing) and the presence "typing" dots.
+    let k = 0;
+    setInterval(() => {
+      k++;
+      const idle = Date.now() - lastType > 450;
+      cur.style.visibility = idle && (k % 2) ? 'hidden' : 'visible';
+    }, 500);
+    const ds = typing.querySelectorAll('.dot');
+    let d = 0;
+    setInterval(() => { d = (d + 1) % 3; ds.forEach((x, i) => x.classList.toggle('on', i === d)); }, P.level(450, 160, 120));
+  };
+})();
+</script>
+</body>
+</html>

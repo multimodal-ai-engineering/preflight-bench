@@ -1,0 +1,2 @@
+The first image is the screen just before an action. The second image is the screen a few seconds after it.
+Does the second screen show: "{expected_effect}"? Answer {{"happened": true|false, "confidence": 0-1}}. JSON only.

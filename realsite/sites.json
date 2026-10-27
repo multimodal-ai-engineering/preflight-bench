@@ -1,0 +1,12 @@
+[
+  {"name": "timegov", "url": "https://time.gov/"},
+  {"name": "census_popclock", "url": "https://www.census.gov/popclock/"},
+  {"name": "usgs_quakes", "url": "https://earthquake.usgs.gov/earthquakes/map/"},
+  {"name": "nws_radar", "url": "https://radar.weather.gov/"},
+  {"name": "noaa_swpc", "url": "https://www.swpc.noaa.gov/"},
+  {"name": "wikipedia_main", "url": "https://en.wikipedia.org/wiki/Main_Page"},
+  {"name": "openstreetmap", "url": "https://www.openstreetmap.org/"},
+  {"name": "arxiv_csai_new", "url": "https://arxiv.org/list/cs.AI/new"},
+  {"name": "nasa", "url": "https://www.nasa.gov/"},
+  {"name": "gnu", "url": "https://www.gnu.org/"}
+]

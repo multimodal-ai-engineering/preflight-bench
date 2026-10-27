@@ -1,0 +1,84 @@
+{
+  "C1": {
+    "ssim_min": 0.92,
+    "frac_max": 0.002,
+    "diff_thr": 20
+  },
+  "C2": {
+    "ssim_min": 0.40773560762151284,
+    "frac_max": 0.9031863184485006,
+    "diff_thr": 20
+  },
+  "C4": {
+    "mask_thr": 12,
+    "mask_dilate": 3,
+    "tau_in": 0.5,
+    "tau_match": 0.85,
+    "m_unique": 0.2,
+    "tau_target": 0.6,
+    "b": 6.0,
+    "d": 25.0
+  },
+  "C4_mode": "replan_only",
+  "deviation": {
+    "what": "no re-aim setting met re-find errors <= 1% on Tier 1 dev; C4 frozen in re-plan-only mode",
+    "min_refind_error_rate": 0.11304347826086956,
+    "reaims": 115,
+    "refind_errors": 13,
+    "exploratory_C4r": {
+      "tau_in": 0.6,
+      "tau_match": 0.85,
+      "m_unique": 0.2,
+      "tau_target": 0.6,
+      "b": 6.0,
+      "d": 35.0,
+      "mask_thr": 12,
+      "mask_dilate": 3
+    },
+    "prereg_gap": "the preregistration did not say what to do when no setting meets the cap"
+  },
+  "question_thresholds": {
+    "settled_t0": 0.12526237964630127,
+    "dialog_t0": 0.555125,
+    "settled_t1": 1.072742484509945,
+    "dialog_t1": 0.2261875,
+    "settled_t2": Infinity,
+    "dialog_t2": 0.2653125
+  },
+  "dev_objective": {
+    "C4": 1.1876077425082467,
+    "C2": 0.5966635727703873
+  },
+  "mask": [
+    12,
+    3
+  ],
+  "tuned_on": "full dev (variants 0-1); C4/C2 on Tier 1 dev",
+  "date": "2026-10-23",
+  "rule": "C4: s/step at p=0.05 with re-find errors <= 1% of re-aims; C2 and question thresholds at <= 2% FA",
+  "escalation_dev_objective": {},
+  "C5r": {
+    "tau_low": 1.01,
+    "cover_band": 0.0,
+    "cand_min": 0.5
+  },
+  "escalation_deviation": {
+    "C5": {
+      "what": "no escalation setting met re-find errors <= 1% on Tier 1 dev (150-pair subset); not frozen; lowest-error setting kept as exploratory C5r",
+      "min_rate": 0.1,
+      "reaims": 10,
+      "errors": 1
+    },
+    "C6": {
+      "what": "no escalation setting met re-find errors <= 1% on Tier 1 dev (150-pair subset); not frozen; lowest-error setting kept as exploratory C6r",
+      "min_rate": 0.08333333333333333,
+      "reaims": 12,
+      "errors": 1
+    }
+  },
+  "C6r": {
+    "tau_low": 1.01,
+    "cover_band": 0.5,
+    "cand_min": 0.5
+  }
+}

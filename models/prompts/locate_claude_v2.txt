@@ -1,0 +1,4 @@
+Image 1 is a crop of an earlier screenshot of a web page, centered on one UI element (the target). In the full 1280x800 earlier screenshot, the target's box was x={x}, y={y}, width={w}, height={h} pixels; inside Image 1 it is at x={cx}, y={cy}, width={w}, height={h}.
+Image 2 is the full current screen, 1280x800 pixels. The page may have changed since: the target may have moved, been removed, or been covered, and a similar-looking element may now sit at the old position.
+Find the same element, in the same context (same neighbouring labels and content), in Image 2. Do not assume it is still at its earlier position; check what surrounds it. Report its box in Image 2 in pixels, whether it is present, and whether something covers it.
+Answer with JSON only: {{"present": true|false, "box": [x1, y1, x2, y2] or null, "covered": true|false}}

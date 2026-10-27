@@ -1,0 +1,50 @@
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Reserve stay\".", "hit": true, "raw": "{\"box\": [721, 243, 975, 281], \"label\": \"Reserve stay\"}", "ms": 1299.7}
+{"model": "claude-haiku-5-5", "task": "Click the link labelled \"Sign in\".", "hit": true, "raw": "{\"box\": [954, 15, 993, 35], \"label\": \"Sign in\"}", "ms": 1127.1}
+{"model": "claude-haiku-5-5", "task": "Click the link labelled \"Rooms\".", "hit": true, "raw": "{\"box\": [743, 17, 779, 33], \"label\": \"Rooms\"}", "ms": 1014.4}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"\u2212\".", "hit": true, "raw": "{\"box\": [189, 482, 207, 501], \"label\": \"\u2212\"}", "ms": 1193.2}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Selected: Heron\".", "hit": true, "raw": "{\"box\": [262, 357, 452, 383], \"label\": \"Selected: Heron\"}", "ms": 949.8}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"+\".", "hit": true, "raw": "{\"box\": [946, 384, 964, 402], \"label\": \"+\"}", "ms": 1543.7}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"heart\".", "hit": true, "raw": "{\"box\": [953, 53, 964, 60], \"label\": \"heart\"}", "ms": 936.4}
+{"model": "claude-haiku-5-5", "task": "Click the link labelled \"House rules\".", "hit": true, "raw": "{\"box\": [42, 274, 68, 280], \"label\": \"House rules\"}", "ms": 1071.9}
+{"model": "claude-haiku-5-5", "task": "Click the link labelled \"Sign in\".", "hit": true, "raw": "{\"box\": [35, 176, 57, 190], \"label\": \"Sign in\"}", "ms": 1044.6}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Choose Heron\".", "hit": true, "raw": "{\"box\": [872, 202, 963, 230], \"label\": \"Choose Heron\"}", "ms": 992.7}
+{"model": "claude-haiku-5-5", "task": "Click the link labelled \"House rules\".", "hit": true, "raw": "{\"box\": [89, 609, 141, 633], \"label\": \"House rules\"}", "ms": 1045.5}
+{"model": "claude-haiku-5-5", "task": "Click the link labelled \"Rooms\".", "hit": true, "raw": "{\"box\": [743, 17, 780, 33], \"label\": \"Rooms\"}", "ms": 946.4}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Reserve stay\".", "hit": true, "raw": "{\"box\": [721, 243, 975, 281], \"label\": \"Reserve stay\"}", "ms": 800.4}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Selected: Tarn\".", "hit": true, "raw": "{\"box\": [481, 357, 671, 383], \"label\": \"Selected: Tarn\"}", "ms": 1134.6}
+{"model": "claude-haiku-5-5", "task": "Click the link labelled \"Sign in\".", "hit": true, "raw": "{\"box\": [954, 16, 993, 33], \"label\": \"Sign in\"}", "ms": 993.8}
+{"model": "claude-haiku-5-5", "task": "Click the link labelled \"House rules\".", "hit": true, "raw": "{\"box\": [26, 268, 70, 281], \"label\": \"House rules\"}", "ms": 1056.8}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Choose Tarn\".", "hit": true, "raw": "{\"box\": [880, 262, 963, 288], \"label\": \"Choose Tarn\"}", "ms": 1203.5}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"+\".", "hit": true, "raw": "{\"box\": [955, 384, 965, 401], \"label\": \"+\"}", "ms": 1000.9}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Change\".", "hit": true, "raw": "{\"box\": [378, 384, 380, 397], \"label\": \"Change\"}", "ms": 1023.0}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Choose Fern\".", "hit": true, "raw": "{\"box\": [921, 157, 921, 157], \"label\": \"Choose Fern\"}", "ms": 989.1}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"heart\".", "hit": true, "raw": "{\"box\": [639, 67, 657, 85], \"label\": \"heart\"}", "ms": 1095.5}
+{"model": "claude-haiku-5-5", "task": "Click the link labelled \"Rooms\".", "hit": true, "raw": "{\"box\": [743, 16, 779, 33], \"label\": \"Rooms\"}", "ms": 1149.0}
+{"model": "claude-haiku-5-5", "task": "Click the link labelled \"Sign in\".", "hit": true, "raw": "{\"box\": [954, 17, 993, 33], \"label\": \"Sign in\"}", "ms": 998.1}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Change\".", "hit": true, "raw": "{\"box\": [197, 426, 234, 441], \"label\": \"Change\"}", "ms": 2521.1}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Reserve stay\".", "hit": true, "raw": "{\"box\": [721, 243, 975, 281], \"label\": \"Reserve stay\"}", "ms": 822.2}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"heart\".", "hit": true, "raw": "{\"box\": [944, 40, 963, 61], \"label\": \"heart\"}", "ms": 974.9}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Reserve stay\".", "hit": true, "raw": "{\"box\": [766, 551, 973, 589], \"label\": \"Reserve stay\"}", "ms": 738.9}
+{"model": "claude-haiku-5-5", "task": "Click the link labelled \"Dining hall\".", "hit": true, "raw": "{\"box\": [16, 102, 72, 124], \"label\": \"Dining hall\"}", "ms": 875.0}
+{"model": "claude-haiku-5-5", "task": "Click the link labelled \"Sign in\".", "hit": true, "raw": "{\"box\": [16, 175, 56, 189], \"label\": \"Sign in\"}", "ms": 1039.3}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"\u2212\".", "hit": true, "raw": "{\"box\": [922, 383, 938, 401], \"label\": \"\u2212\"}", "ms": 1634.1}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Choose Tarn\".", "hit": true, "raw": "{\"box\": [481, 357, 671, 383], \"label\": \"Choose Tarn\"}", "ms": 1183.5}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Reserve stay\".", "hit": true, "raw": "{\"box\": [721, 243, 975, 281], \"label\": \"Reserve stay\"}", "ms": 1116.9}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Apply voucher\".", "hit": true, "raw": "{\"box\": [198, 519, 285, 544], \"label\": \"Apply voucher\"}", "ms": 860.1}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"\u2212\".", "hit": true, "raw": "{\"box\": [189, 482, 208, 501], \"label\": \"\u2212\"}", "ms": 763.4}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"+\".", "hit": true, "raw": "{\"box\": [223, 482, 242, 501], \"label\": \"+\"}", "ms": 718.4}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Selected: Fern\".", "hit": true, "raw": "{\"box\": [860, 143, 963, 170], \"label\": \"Selected: Fern\"}", "ms": 941.1}
+{"model": "claude-haiku-5-5", "task": "Click the link labelled \"Cancellation policy\".", "hit": true, "raw": "{\"box\": [886, 450, 974, 465], \"label\": \"Cancellation policy\"}", "ms": 1452.2}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Reserve stay\".", "hit": true, "raw": "{\"box\": [766, 551, 973, 589], \"label\": \"Reserve stay\"}", "ms": 838.8}
+{"model": "claude-haiku-5-5", "task": "Click the link labelled \"Rooms\".", "hit": true, "raw": "{\"box\": [16, 74, 52, 89], \"label\": \"Rooms\"}", "ms": 933.5}
+{"model": "claude-haiku-5-5", "task": "Click the link labelled \"House rules\".", "hit": true, "raw": "{\"box\": [16, 268, 68, 281], \"label\": \"House rules\"}", "ms": 953.9}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"+\".", "hit": true, "raw": "{\"box\": [206, 474, 240, 508], \"label\": \"+\"}", "ms": 1007.1}
+{"model": "claude-haiku-5-5", "task": "Click the link labelled \"Rooms\".", "hit": false, "raw": "{\"box\": [760, 16, 800, 36], \"label\": \"Rooms\"}", "ms": 952.1}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Choose Fern\".", "hit": true, "raw": "{\"box\": [138, 357, 327, 383], \"label\": \"Choose Fern\"}", "ms": 1077.1}
+{"model": "claude-haiku-5-5", "task": "Click the link labelled \"Sign in\".", "hit": true, "raw": "{\"box\": [958, 16, 994, 36], \"label\": \"Sign in\"}", "ms": 2837.7}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Change\".", "hit": true, "raw": "{\"box\": [197, 427, 234, 441], \"label\": \"Change\"}", "ms": 939.6}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Change\".", "hit": true, "raw": "{\"box\": [361, 377, 397, 399], \"label\": \"Change\"}", "ms": 1971.2}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Reserve stay\".", "hit": true, "raw": "{\"box\": [766, 551, 973, 589], \"label\": \"Reserve stay\"}", "ms": 1425.2}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"heart\".", "hit": true, "raw": "{\"box\": [945, 43, 962, 61], \"label\": \"heart\"}", "ms": 1435.4}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"Choose Tarn\".", "hit": true, "raw": "{\"box\": [880, 262, 963, 289], \"label\": \"Choose Tarn\"}", "ms": 827.3}
+{"model": "claude-haiku-5-5", "task": "Click the button labelled \"share\".", "hit": true, "raw": "{\"box\": [970, 43, 987, 61], \"label\": \"share\"}", "ms": 1103.7}

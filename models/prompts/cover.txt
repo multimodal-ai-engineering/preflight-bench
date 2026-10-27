@@ -1,0 +1,2 @@
+The first image shows a UI element from an earlier screenshot. The second image shows the same spot on the current screen.
+Is the element in the first image hidden or covered in the second? Answer {{"covered": true|false, "confidence": 0-1}}. JSON only.

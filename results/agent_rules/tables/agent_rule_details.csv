@@ -1,0 +1,11 @@
+rule,visits,signal_load,signal_networkidle,capped,signal_after_3s,signal_after_2s,pending_gate_fired,load_timeout,dcl_timeout,anim_timeout,anim_wait_median
+A1,92,0,0,0,0,0,0,,,,
+A2,89,88,0,1,5,10,0,,,,
+A3,89,0,0,0,0,0,0,,,,
+A4,89,0,0,0,0,0,0,,,,
+A5,92,0,0,0,0,0,0,0.0,,6.0,0.007
+A6,91,0,0,0,0,0,0,,,,
+A7,89,87,0,2,4,8,0,,,,
+A8,89,0,0,0,0,0,0,0.0,,,
+A9,90,0,0,0,0,0,0,,,,
+A10,92,0,0,0,0,0,0,0.0,0.0,,

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Notes</title>
+<style>
+  * { box-sizing: border-box; caret-color: transparent; }
+  html, body { margin: 0; width: 1280px; height: 800px; overflow: hidden; background: #f6f6f4;
+    font: 15px/1.6 -apple-system, "Helvetica Neue", Arial, sans-serif; color: #22272c; }
+  header { height: 54px; background: #fff; border-bottom: 1px solid #e3e3e0; display: flex; align-items: center; padding: 0 24px; gap: 14px; }
+  .title { font-weight: 600; font-size: 16px; }
+  .saving { color: #6b737a; font-size: 12px; width: 70px; }
+  .grow { flex: 1; }
+  .avs { display: flex; gap: 4px; }
+  .av { width: 28px; height: 28px; border-radius: 50%; color: #fff; font: 600 12px/28px Arial; text-align: center; }
+  .btn { font: inherit; font-size: 14px; border: 1px solid #c9cdd1; background: #fff; border-radius: 6px; padding: 4px 12px; color: #22272c; }
+  .btn.primary { background: #3b5f4a; border-color: #3b5f4a; color: #fff; }
+  .toolbar { height: 40px; background: #fff; border-bottom: 1px solid #e3e3e0; display: flex; align-items: center; gap: 6px; padding: 0 24px; }
+  .icon { width: 24px; height: 24px; padding: 0; border: 0; background: transparent; font: 14px/24px Georgia, serif; color: #4b545c; border-radius: 4px; }
+  .wrap { display: grid; grid-template-columns: 1fr 760px 1fr; height: 706px; overflow: hidden; }
+  .page { background: #fff; border: 1px solid #e3e3e0; margin-top: 16px; padding: 28px 44px; position: relative; overflow: hidden; height: 690px; }
+  h1 { font-size: 24px; margin: 0 0 10px; }
+  .page p { margin: 0 0 12px; }
+  .page a { color: #2f5b8f; }
+  .rcur { position: absolute; width: 2px; height: 20px; background: #c2552d; z-index: 3; pointer-events: none; }
+  .rtag { position: absolute; background: #c2552d; color: #fff; font: 11px/14px Arial; padding: 0 4px; border-radius: 3px; z-index: 3; pointer-events: none; }
+  .margin { padding: 60px 18px; }
+  .todo { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; }
+  .typed { background: rgba(194, 85, 45, .08); }
+</style></head>
+<body>
+<header>
+  <div class="title">Project notes</div><div class="saving" id="saving">Saved</div>
+  <div class="grow"></div>
+  <div class="avs"><div class="av" style="background:#c2552d">R</div><div class="av" style="background:#4f7ea8">M</div><div class="av" style="background:#6a8f5a">J</div></div>
+  <button class="btn" data-target-id="share" data-alt="Shared">Share</button>
+  <button class="btn primary" data-action-id="publish">Publish</button>
+</header>
+<div class="toolbar">
+  <button class="icon" data-target-id="bold" data-alt="b"><b>B</b></button><button class="icon"><i>I</i></button>
+  <button class="icon" data-target-id="link-tool" data-alt="⛓">🔗</button><button class="icon">≡</button>
+</div>
+<div class="wrap">
+  <div class="margin"></div>
+  <div class="page" id="page">
+    <h1>Weekly planning</h1>
+    <p id="p0">Agenda for the week, with owners and dates. </p>
+    <p id="p1"></p>
+    <p id="p2"></p>
+    <div class="todo" data-block><button class="btn" data-target-id="done-1" data-alt="Undo">Done</button><span data-vary="text">Draft the summary for the review group</span></div>
+    <p id="p3"></p>
+    <div class="todo" data-block><button class="btn" data-target-id="done-2" data-alt="Undo">Done</button><span data-vary="text">Collect the numbers from last month</span></div>
+    <p id="p4"></p>
+    <p id="p5"></p>
+  </div>
+  <div class="margin"><button class="btn" data-target-id="comment" data-alt="Commented">Comment</button>
+    <p style="font-size:13px;color:#6b737a" data-block><a href="#" data-target-id="history" data-alt="History (2)" style="color:#2f5b8f">Version history</a></p></div>
+</div>
+<!--COMMON-->
+<script>
+(function () {
+  const ps = [1, 2, 3, 4, 5].map(i => document.getElementById('p' + i));
+  ps.forEach(p => p.textContent = P.sentence(14 + Math.floor(P.rand() * 18)) + ' ' + P.sentence(8 + Math.floor(P.rand() * 10)) + ' ');
+  // Inline links inside paragraphs reflow as text is typed before them.
+  function addLink(p, id, text, alt) {
+    const a = P.el('a', null, text); a.href = '#'; a.dataset.targetId = id; a.dataset.alt = alt;
+    p.append(a, document.createTextNode(' ' + P.sentence(6)));
+  }
+  addLink(ps[1], 'ref-1', 'see the brief', 'see the brief (edited)');
+  addLink(ps[3], 'ref-2', 'open questions', 'open questions (2)');
+  P.action = { id: 'publish', smallLabel: 'Published ✓', panelText: 'Page published.' };
+  P.hooks.blockOf = t => t.closest('[data-block]') || t.closest('p') || t;
+
+  P.init = function () {
+    const cps = P.level(5, 10, 15);
+    const page = document.getElementById('page');
+    const cur = P.el('div', 'rcur'), tag = P.el('div', 'rtag', 'R. editing');
+    page.append(cur, tag);
+    const saving = document.getElementById('saving');
+    let para = P.pick(ps), span = null, buf = '', since = 0, saveT = null;
+    function newSpan() {
+      span = P.el('span', 'typed'); buf = '';
+      // Type at the start of the paragraph so everything after it reflows.
+      para.insertBefore(span, para.firstChild);
+    }
+    newSpan();
+    function place() {
+      const r = span.getBoundingClientRect(), pr = page.getBoundingClientRect();
+      const rects = span.getClientRects(); const last = rects[rects.length - 1] || r;
+      cur.style.left = (last.right - pr.left) + 'px'; cur.style.top = (last.top - pr.top) + 'px';
+      tag.style.left = (last.right - pr.left) + 'px'; tag.style.top = (last.top - pr.top - 16) + 'px';
+    }
+    if (!cps) { place(); return; }
+    function type() {
+      if (buf.length === 0) buf = P.words(2 + Math.floor(P.rand() * 4)) + ' ';
+      span.textContent += buf[0]; buf = buf.slice(1);
+      if (++since > 40 + P.rand() * 60) { since = 0; para = P.pick(ps); newSpan(); }
+      place();
+      saving.textContent = 'Saving…'; clearTimeout(saveT); saveT = setTimeout(() => { saving.textContent = 'Saved'; }, 700);
+      setTimeout(type, 1000 / cps * P.between(0.6, 1.4));
+    }
+    place(); setTimeout(type, 200);
+  };
+})();
+</script>
+</body></html>

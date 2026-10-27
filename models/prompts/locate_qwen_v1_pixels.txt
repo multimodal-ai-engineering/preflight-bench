@@ -1,0 +1,5 @@
+Image 1 is a crop of an earlier screenshot of a web page, centered on one UI element (the target). In the full 1280x800 earlier screenshot, the target's box was x={x}, y={y}, width={w}, height={h} pixels; inside Image 1 it is at x={cx}, y={cy}, width={w}, height={h}.
+Image 2 is the full current screen (1280x800).
+Find the same element, in the same context, in Image 2. Say whether it is still present, its box in Image 2, and whether something covers it.
+Give the box as [x1, y1, x2, y2] in relative coordinates from 0 to 1000.
+Answer with JSON only: {{"present": true|false, "box": [x1, y1, x2, y2] or null, "covered": true|false}}

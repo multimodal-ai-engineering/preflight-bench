@@ -1,0 +1,5 @@
+scope,cells,excluded,agreement,E2_holds,latency_source
+all questions,14487,283,0.9267619244840202,True,b2
+dialog,3497,73,0.842150414641121,False,b2
+settled,7182,168,0.9585073795600111,True,b2
+worked,3808,42,0.9445903361344538,True,b2

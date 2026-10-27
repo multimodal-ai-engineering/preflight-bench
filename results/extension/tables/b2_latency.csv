@@ -1,0 +1,8 @@
+check,job_kind,n,median_ms,p90_ms,gpu,dtype,transformers
+florence-2,worked,200,4114.65,7016.159999999999,Tesla T4,float16,5.20.2
+qwen3-vl-2b,action,100,1449.9499999999998,1478.03,Tesla T4,float16,5.20.2
+qwen3-vl-2b,worked,100,1560.65,1687.15,Tesla T4,float16,5.20.2
+qwen3-vl-4b,action,100,2424.65,2543.65,Tesla T4,float16,5.20.2
+qwen3-vl-4b,worked,100,2814.3500000000004,2883.4300000000003,Tesla T4,float16,5.20.2
+smolvlm2-2.2b,action,100,2006.4499999999998,2083.8,Tesla T4,float16,4.57.1
+smolvlm2-2.2b,worked,100,1813.95,2136.77,Tesla T4,float16,4.57.1

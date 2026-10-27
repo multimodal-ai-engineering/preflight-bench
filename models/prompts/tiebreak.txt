@@ -1,0 +1,2 @@
+The image labelled "Reference" shows a UI element in its surrounding context, from an earlier screenshot. The images labelled "Candidate 1" to "Candidate {n}" are crops from the current screen.
+Which candidate shows the same element, in the same context, as the Reference? Answer with the candidate's number: {{"choice": {choices}|null, "confidence": 0-1}}. JSON only.

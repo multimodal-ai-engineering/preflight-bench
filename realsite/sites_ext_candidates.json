@@ -1,0 +1,23 @@
+[
+  {"name": "emsc_quakes", "url": "https://www.emsc-csem.org/Earthquake_information/", "kind": "listing", "why": "Earthquake list from a non-profit research centre; new events insert rows at the top during a visit, pushing the links below them down."},
+  {"name": "emsc_realtime", "url": "https://www.seismicportal.eu/realtime.html", "kind": "map", "why": "EMSC real-time seismic map; new events are added as they arrive, and the event list beside the map re-renders."},
+  {"name": "iris_seismon", "url": "https://www.iris.edu/app/seismic-monitor/", "kind": "map", "why": "IRIS/EarthScope seismic monitor (ds.iris.edu/seismon redirects here); quake markers and the list refresh, and the map lays out after load."},
+  {"name": "faa_nas", "url": "https://nasstatus.faa.gov/", "kind": "status", "why": "FAA National Airspace System status; airport delay entries load after the page opens and change as delays are posted."},
+  {"name": "eia_grid", "url": "https://www.eia.gov/electricity/gridmonitor/dashboard/electric_overview/US48/US48", "kind": "dashboard", "why": "EIA hourly grid monitor (open data); chart panels and their controls load one after another, shifting the layout after load."},
+  {"name": "caiso_outlook", "url": "https://www.caiso.com/todays-outlook", "kind": "dashboard", "why": "California grid operator's live supply and demand charts; the panels load late and refresh on a timer."},
+  {"name": "ercot_dash", "url": "https://www.ercot.com/gridmktinfo/dashboards", "kind": "dashboard", "why": "Texas grid operator's dashboards; live tiles load after the page opens and update in place."},
+  {"name": "owid", "url": "https://ourworldindata.org/", "kind": "front_page", "why": "Our World in Data front page (CC BY); lazily loaded charts and featured cards resize the page after load."},
+  {"name": "wikimedia_status", "url": "https://www.wikimediastatus.net/", "kind": "status", "why": "Wikimedia status page; the uptime bars and metric charts render after load and move the component links."},
+  {"name": "python_status", "url": "https://status.python.org/", "kind": "status", "why": "Python infrastructure status page (open source); components and incident history render after load."},
+  {"name": "github_status", "url": "https://www.githubstatus.com/", "kind": "status", "why": "GitHub status page; incident banners can appear at the top and push every link down."},
+  {"name": "voa_news", "url": "https://www.voanews.com/", "kind": "front_page", "why": "Voice of America front page (US public broadcaster); carousels rotate and lazily loaded blocks shift the links."},
+  {"name": "wikinews", "url": "https://en.wikinews.org/wiki/Main_Page", "kind": "front_page", "why": "Wikinews main page (Wikimedia); a mostly static control page with a few late-loading elements."},
+  {"name": "weather_gov", "url": "https://www.weather.gov/", "kind": "map", "why": "National Weather Service front page; the hazard map and its legend links load after the page opens."},
+  {"name": "usgs_water", "url": "https://dashboard.waterdata.usgs.gov/", "kind": "map", "why": "USGS National Water Dashboard; map markers and panels load progressively and the layout settles late."},
+  {"name": "usgs_volcanoes", "url": "https://volcanoes.usgs.gov/hans2/", "kind": "listing", "why": "USGS volcano notices; the notice list and map load after the page opens."},
+  {"name": "airnow", "url": "https://www.airnow.gov/", "kind": "dashboard", "why": "EPA AirNow; the location widget and air-quality map load late, and a slideshow rotates."},
+  {"name": "esa", "url": "https://www.esa.int/", "kind": "front_page", "why": "European Space Agency front page; a hero carousel rotates its links (robots.txt asks for a 2 s crawl delay, below our 10 s)."},
+  {"name": "un", "url": "https://www.un.org/en/", "kind": "front_page", "why": "United Nations front page; a rotating hero slider and late-loading news blocks (robots.txt asks for a 10 s crawl delay, which equals our minimum)."},
+  {"name": "nhc", "url": "https://www.nhc.noaa.gov/", "kind": "map", "why": "National Hurricane Center; outlook graphics and the active-storm links load late; mostly static outside storm season."},
+  {"name": "hydra_nixos", "url": "https://hydra.nixos.org/", "kind": "listing", "why": "NixOS build farm front page (open source); the queue and build counts change between loads (robots.txt allows only the root URL, the only page we load)."}
+]

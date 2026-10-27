@@ -1,0 +1,150 @@
+{"pair_id": "71e3ea8270fbee0c", "ms": 6454.1, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "9ffaff799dd0e1af", "ms": 2990.5, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "ee409c51562e9579", "ms": 1956.9, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "0d651e767b15a3a3", "ms": 4686.0, "usd": 0.013372, "raw": "{\"same_place\": true, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "d1b91ea7c059e986", "ms": 3836.6, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "6ef53055cd4edfdb", "ms": 1849.2, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "1691f159bd74ba1a", "ms": 6572.7, "usd": 0.012431999999999999, "raw": "{\"same_place\": false, \"dialog\": true}", "model": "claude-opus-5-5"}
+{"pair_id": "46ac31f929e1d2c0", "ms": 3193.3, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "332e63a54de0f6ab", "ms": 2622.8, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "a531b105eac0177a", "ms": 2705.5, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "d2f546ad374465ee", "ms": 1859.1, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "6d67ba09f568126e", "ms": 3704.7, "usd": 0.011032, "raw": "{\"same_place\": true, \"dialog\": true}", "model": "claude-opus-5-5"}
+{"pair_id": "a90124620c9b02f7", "ms": 1888.4, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "f56e457009888784", "ms": 2091.0, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "2dc0911fab8a9811", "ms": 2245.3, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "6f469d466e198ff2", "ms": 2514.9, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "066925ee33ba37c9", "ms": 2037.9, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "607d1326d13d6563", "ms": 2495.0, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "b5dcbe08722aa1a5", "ms": 3432.5, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "7beedaee9207f5c4", "ms": 3852.0, "usd": 0.012152, "raw": "{\"same_place\": true, \"dialog\": true}", "model": "claude-opus-5-5"}
+{"pair_id": "51e7a3aea334b483", "ms": 3007.8, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "ad3550bdd8558e30", "ms": 6664.9, "usd": 0.015472, "raw": "{\"same_place\": false, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "47e752d9cef8b8df", "ms": 1776.2, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "205f3481b161f3ef", "ms": 6931.6, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "3fadf833ce07a580", "ms": 2220.5, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "c8291ee6f6fdc808", "ms": 2059.0, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "390b0434449cdf48", "ms": 2351.3, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "3b937b98dc1b7c6f", "ms": 2121.2, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "00aa3946d7deb5d6", "ms": 2618.6, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "01f66e53409507a5", "ms": 2121.8, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "5d0639574fed344c", "ms": 2962.4, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "6048e592085f521a", "ms": 6086.6, "usd": 0.012272, "raw": "{\"same_place\": false, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "4b57486c3aa01785", "ms": 1504.1, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "4b898e0c92823b89", "ms": 2526.1, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "7f05b5845292d86f", "ms": 2929.2, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "8b2f8ca77cae282b", "ms": 2475.5, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "58db991f723fffae", "ms": 3773.2, "usd": 0.011032, "raw": "{\"same_place\": false, \"dialog\": true}", "model": "claude-opus-5-5"}
+{"pair_id": "f22f2566c13a365f", "ms": 2859.0, "usd": 0.010112, "raw": "{\"same_place\": true, \"dialog\": true}", "model": "claude-opus-5-5"}
+{"pair_id": "5b3d8ad0b38727ca", "ms": 3006.9, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "51e177a6f3ce1b89", "ms": 2394.0, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "580bbe2cbda1eae9", "ms": 2823.6, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "a9cccd263c4586c6", "ms": 2263.8, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "843f1aa708782052", "ms": 1491.8, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "09c1f7ad411b535f", "ms": 5366.4, "usd": 0.011752, "raw": "{\"same_place\": false, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "a117e4e18fc09496", "ms": 2260.5, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "b87847873b932d3d", "ms": 2405.9, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "4234f0ee39ce2144", "ms": 3151.3, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "75fd7c49f8f2f4ad", "ms": 2337.7, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "1d4158372afee871", "ms": 4663.2, "usd": 0.012812, "raw": "{\"same_place\": true, \"dialog\": true}", "model": "claude-opus-5-5"}
+{"pair_id": "9301d35f1e3db75e", "ms": 4159.0, "usd": 0.011532, "raw": "{\"same_place\": false, \"dialog\": true}", "model": "claude-opus-5-5"}
+{"pair_id": "855cb0f776d0aefd", "ms": 2022.9, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "011aee8443584e0e", "ms": 2641.2, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "962dce954094618c", "ms": 1969.3, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "1d83a987f8ca974f", "ms": 2577.3, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "88f69752f679cf12", "ms": 1798.0, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "9ed3549d4dd22d56", "ms": 4054.4, "usd": 0.012812, "raw": "{\"same_place\": false, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "86ead8aa72a7483a", "ms": 1915.7, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "d88b3e94fc234d46", "ms": 2202.0, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "8c7668faef47fd59", "ms": 1400.5, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "5326bf40e8a51b43", "ms": 2440.9, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "d8a864810ed926e6", "ms": 1616.0, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "d4d68233d520539d", "ms": 1946.5, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "500db620127d8720", "ms": 1550.1, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "19147b1a5ab3567c", "ms": 2348.2, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "722986d973bd655a", "ms": 5182.2, "usd": 0.011632, "raw": "{\"same_place\": true, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "0ae469fd59bc3818", "ms": 2854.6, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "9fc33849da272f4a", "ms": 1770.5, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "b49cfd899795d0c3", "ms": 2212.1, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "0833d6e5f1a5f1d5", "ms": 2817.3, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "f81a836f2cce773c", "ms": 2568.7, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "babf4ef07c9e7a90", "ms": 2735.4, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "a2dfac7d42a0485a", "ms": 1599.9, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "a748bf9fb8ad5f0c", "ms": 3855.3, "usd": 0.012152, "raw": "{\"same_place\": false, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "041bcba08db1f348", "ms": 2027.5, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "cb4f56a5755f5444", "ms": 3705.8, "usd": 0.011592, "raw": "{\"same_place\": false, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "15561a03674f6fee", "ms": 3984.6, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "5178006ab0e96357", "ms": 3374.8, "usd": 0.010971999999999999, "raw": "{\"same_place\": false, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "57f1c87c690be35d", "ms": 1711.9, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "35b4c08f9c34f10b", "ms": 4179.0, "usd": 0.011132, "raw": "{\"same_place\": false, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "6ca99ddced76c5ff", "ms": 2031.3, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "d054ad439fcfff7a", "ms": 2415.9, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "9922b4ad2da56fc4", "ms": 2315.9, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "e5ab1dded9dde258", "ms": 2177.8, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "9ea7a6e8af666063", "ms": 6046.6, "usd": 0.014452, "raw": "{\"same_place\": true, \"dialog\": true}", "model": "claude-opus-5-5"}
+{"pair_id": "ebff310344c45846", "ms": 1784.3, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "6fa5992f7c53566f", "ms": 1940.6, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "d077cb8e1e854ba7", "ms": 2290.7, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "311c53588c532fb4", "ms": 2340.8, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "a3272dfd08970459", "ms": 3593.6, "usd": 0.010132, "raw": "{\"same_place\": true, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "829c34ead59bbac5", "ms": 2439.2, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "10d7a500a1bf0988", "ms": 9588.3, "usd": 0.018612, "raw": "{\"same_place\": true, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "c3259c1a5c104dea", "ms": 3250.6, "usd": 0.011372, "raw": "{\"same_place\": false, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "29ab7cdf3be3975f", "ms": 7603.5, "usd": 0.017252, "raw": "{\"same_place\": true, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "5c8c1b98493f5deb", "ms": 2552.3, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "97dbafe73defeb6e", "ms": 4818.6, "usd": 0.010211999999999999, "raw": "{\"same_place\": true, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "e5aceaab33c5feed", "ms": 2121.8, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "a1b6b1d836407c0a", "ms": 2008.5, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "439fecca221ea4c1", "ms": 3153.2, "usd": 0.010472, "raw": "{\"same_place\": false, \"dialog\": true}", "model": "claude-opus-5-5"}
+{"pair_id": "9750ec3af836c99f", "ms": 3535.0, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "7af568d0ecdb2f06", "ms": 2243.3, "usd": 0.009892, "raw": "{\"same_place\": true, \"dialog\": true}", "model": "claude-opus-5-5"}
+{"pair_id": "f655c92a27eaef43", "ms": 2255.7, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "29e4447183bdc205", "ms": 1921.5, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "8a5d0aa587dd4de3", "ms": 2328.5, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "8d0b5142ecc07421", "ms": 3384.4, "usd": 0.011792, "raw": "{\"same_place\": true, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "86f96449336e7320", "ms": 2019.1, "usd": 0.008272, "raw": "{\"same_place\": true, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "509d36248db1863c", "ms": 4436.0, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "246ed2c23aad9746", "ms": 2055.6, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "43e71b133fdb78b4", "ms": 2082.1, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "88deaed7be9c8451", "ms": 2155.4, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "d97168a1bfb29c5f", "ms": 3073.4, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "494943ddd2ba67ca", "ms": 2115.4, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "15bd16bc0c601378", "ms": 2007.3, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "256c975392c6e53e", "ms": 1610.8, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "ef7aefd1d7859fce", "ms": 2961.5, "usd": 0.011552, "raw": "{\"same_place\": false, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "b4efb948078a3da9", "ms": 2010.1, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "0ec6551b7f8b2bce", "ms": 2325.4, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "6860bf821adc4204", "ms": 4106.3, "usd": 0.010872, "raw": "{\"same_place\": false, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "990c0e5dba5fce87", "ms": 2038.2, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "6f6e76e640b12597", "ms": 2008.6, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "cc5bdacd4248af96", "ms": 1983.6, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "bd0861a35e8f5258", "ms": 1546.6, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "18b57a7b5f067160", "ms": 2756.3, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "0f1c89d74a92c509", "ms": 2446.8, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "de5d700963745d1f", "ms": 2067.8, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "947d86fa444a634e", "ms": 2379.8, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "5c2db9e06a3cf292", "ms": 6242.2, "usd": 0.013812, "raw": "{\"same_place\": false, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "3a61d685294bfc86", "ms": 2768.1, "usd": 0.010772, "raw": "{\"same_place\": false, \"dialog\": true}", "model": "claude-opus-5-5"}
+{"pair_id": "fe792f9e2c34dc00", "ms": 2658.0, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "3baae805b9b0cefe", "ms": 3353.8, "usd": 0.011512, "raw": "{\"same_place\": true, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "b83b610f1abee2a2", "ms": 4232.8, "usd": 0.011752, "raw": "{\"same_place\": false, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "30506a1491408d08", "ms": 2226.6, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "4d0ae99af361517f", "ms": 2045.4, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "c37cf6779cc94665", "ms": 1631.6, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "a546454f4942fcf2", "ms": 3409.0, "usd": 0.010612, "raw": "{\"same_place\": true, \"dialog\": true}", "model": "claude-opus-5-5"}
+{"pair_id": "4446e49e99c6f77f", "ms": 5199.3, "usd": 0.011412, "raw": "{\"same_place\": false, \"dialog\": true}", "model": "claude-opus-5-5"}
+{"pair_id": "199a595a83aab644", "ms": 2113.5, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "bc8bfb838ac95650", "ms": 2019.8, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "81ed9195846a2034", "ms": 2228.8, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "409574e76733c5ee", "ms": 1534.3, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "cb65936904e603cd", "ms": 2484.5, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "4d12902e642b4406", "ms": 2223.1, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "ea74b1d04316fc1c", "ms": 1870.8, "usd": 0.008272, "raw": "{\"same_place\": true, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "cb76eed2fb08bcb1", "ms": 4617.4, "usd": 0.012372000000000001, "raw": "{\"same_place\": false, \"dialog\": false}", "model": "claude-opus-5-5"}
+{"pair_id": "dc38c22ff87cebb2", "ms": 4943.4, "usd": 0.012872, "raw": "{\"same_place\": true, \"dialog\": true}", "model": "claude-opus-5-5"}
+{"pair_id": "8d72a4094ead29f8", "ms": 2034.2, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "d7d3535a98ec10cf", "ms": 2073.0, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":true}", "model": "claude-opus-5-5"}
+{"pair_id": "7a7002d41b21318a", "ms": 2049.4, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "7fa6ce7fc24f724e", "ms": 2277.0, "usd": 0.008272, "raw": "{\"same_place\":true,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "d3963b76d655bb3a", "ms": 2086.7, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":false}", "model": "claude-opus-5-5"}
+{"pair_id": "b49786d8ea74d9f4", "ms": 2062.7, "usd": 0.008272, "raw": "{\"same_place\":false,\"dialog\":true}", "model": "claude-opus-5-5"}
