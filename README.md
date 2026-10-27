@@ -1,6 +1,6 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.png">
-  <img src="assets/banner.png" width="100%" alt="Preflight Bench. What Does Now Mean to Your Computer-Use Agent? Stale screenshots, page loads, and which check to run before a click.">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/banner-dark.png">
+  <img src="docs/assets/banner.png" width="100%" alt="Preflight Bench. What Does Now Mean to Your Computer-Use Agent? Stale screenshots, page loads, and which check to run before a click.">
 </picture>
 
 <p align="center">
@@ -26,21 +26,25 @@ A computer-use agent captures a screenshot, plans for several seconds, and then 
   <br><sub>A stale click. The agent plans on a screenshot taken as the page opens; a results banner loads and pushes the list down a row, so the click meant for the Sprint registers for the Olympic. Rendered from <code>paper/race/</code>.</sub>
 </p>
 
-## Repository contents
+## Repository layout
 
-| Folder | What it does |
-|---|---|
-| `pages_full/` | Six synthetic web pages that keep moving (a form, a market dashboard, a news feed, a shared document, a map, a drawing board). Self-contained HTML, no network. |
-| `generator/` | Renders the pages in Chromium with a paused clock, seeds a change between "plan" and "click" (target moved, covered, removed, a dialog, a slow load, or nothing) and records the true answer from the page itself. `make_full.py` is the benchmark generator. |
-| `anchored/` | The pixel check: masks pixels that move on their own, re-finds the target, checks for covers and dialogs. |
-| `models/` | The model checks (Qwen3-VL 2B/4B, SmolVLM2, Florence-2, Claude Haiku 5.5 and Opus 5.5) and their prompts. |
-| `bench/score.py` | Scores a submission file against the labels. |
-| `harness/` | Scoring, tuning, the break-even formula, and the code for every table and figure. |
-| `live/` | The live agent loop (a Claude planner clicking on the moving pages, with and without the check). |
-| `realsite/` | The read-only real-page collector (31 public pages, no clicks, at least 10 s between loads per site) and the ten agents' wait rules. |
-| `docs/` | Preregistrations (each frozen before its data existed), the data card, third-party notes, and the formula's derivation. |
-| `results/` | Results write-ups, tables and raw model decisions. |
-| `paper/` | Paper source, figures and PDF. |
+```
+preflight-bench/
+├── paper/        the paper (PDF and LaTeX), its figures and the scripts that draw them
+├── benchmark/    the moving web pages the benchmark is rendered from
+├── data/         benchmark metadata and labels (screenshots are regenerated, see below)
+├── src/          all code
+│   ├── generator/   renders the pages and records the true answer for every pair
+│   ├── anchored/    the pixel check
+│   ├── models/      the model checks and their prompts
+│   ├── bench/       scoring a submission against the labels
+│   ├── harness/     tuning, the break-even formula, every table and figure
+│   ├── live/        the live agent loop
+│   ├── realsite/    the read-only real-page collector and the ten agents' wait rules
+│   └── colab/       GPU runners for the open models
+├── results/      write-ups, tables, raw model answers and figures
+└── docs/         preregistrations, data card, third-party notes
+```
 
 ## Quick start
 
@@ -77,15 +81,15 @@ uv run python -m harness.ext_inequality                # the break-even formula 
 uv run python -m harness.agent_rules                   # agent wait rules (needs your own real-page run)
 ```
 
-Model checks need a GPU for the open models (`colab/`) and an Anthropic API key in `PREFLIGHT_API_KEY` for the hosted ones. Raw model answers from the study are in `results/` so the tables can be rebuilt without calling any model.
+Model checks need a GPU for the open models (`src/colab/`) and an Anthropic API key in `PREFLIGHT_API_KEY` for the hosted ones. Raw model answers from the study are in `results/` so the tables can be rebuilt without calling any model.
 
 ### Measure real pages yourself
 
-`realsite/collect_add.py` visits public pages read-only and records how often planned clicks become stale under different wait rules. Use only pages you are allowed to load, keep the delay between loads, and keep screenshots private: they contain third-party content. The study's own real-page screenshots are not released.
+`src/realsite/collect_add.py` visits public pages read-only and records how often planned clicks become stale under different wait rules. Use only pages you are allowed to load, keep the delay between loads, and keep screenshots private: they contain third-party content. The study's own real-page screenshots are not released.
 
 ## Preregistration
 
-The study ran under four preregistrations, each committed and tagged before its data was collected (`prereg-v1`, `prereg-ext-v1`, `prereg-add-v1`, `prereg-agents-v1`), after two preregistered pilot waves. This public copy is a clean snapshot; the documents in `docs/` keep their original freeze dates. Of eleven preregistered hypotheses, four held and seven were refuted; all are reported in the paper.
+The study ran under four preregistrations, each committed and tagged before its data was collected (`prereg-v1`, `prereg-ext-v1`, `prereg-add-v1`, `prereg-agents-v1`), after two preregistered pilot waves. This public copy is a clean snapshot; the documents in `docs/` keep their original freeze dates. Paths in those documents refer to the study's original layout, where each folder now under `src/` sat at the top level (for example, `generator/` is now `src/generator/`), and `pages_full/` is now `benchmark/pages_full/`. Of eleven preregistered hypotheses, four held and seven were refuted; all are reported in the paper.
 
 ## Citation
 
