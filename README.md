@@ -4,7 +4,6 @@
 </picture>
 
 <p align="center">
-  <a href="paper/paper.pdf"><img src="https://img.shields.io/badge/paper-PDF-c49edb?style=flat-square" alt="Paper"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/code-MIT-c49edb?style=flat-square" alt="Code license: MIT"></a>
   <a href="docs/DATA_CARD.md"><img src="https://img.shields.io/badge/data-CC%20BY%204.0-c49edb?style=flat-square" alt="Data license: CC BY 4.0"></a>
   <a href="docs/"><img src="https://img.shields.io/badge/preregistered-4%20studies-c49edb?style=flat-square" alt="Preregistered"></a>
@@ -22,16 +21,15 @@ A computer-use agent captures a screenshot, plans for several seconds, and then 
 3. **A break-even formula predicts when a check is worth its cost.** Its check-or-skip decisions agreed with held-out data in 95% of cases.
 
 <p align="center">
-  <img src="paper/fig_hero.png" width="92%" alt="A stale click on a race registration page: a banner loads and the click meant for the Sprint lands on Register for the Olympic.">
-  <br><sub>A stale click. The agent plans on a screenshot taken as the page opens; a results banner loads and pushes the list down a row, so the click meant for the Sprint registers for the Olympic. Rendered from <code>paper/race/</code>.</sub>
+  <img src="docs/assets/stale-click.gif" width="80%" alt="A stale click on a race registration page: a results banner loads while the agent plans, and the click meant for the Sprint lands on Register for the Olympic.">
+  <br><sub>A stale click. The agent plans on a screenshot taken as the page opens; a results banner loads and pushes the list down a row, so the click meant for the Sprint registers for the Olympic. Page and scripts in <code>benchmark/examples/race/</code>.</sub>
 </p>
 
 ## Repository layout
 
 ```
 preflight-bench/
-├── paper/        the paper (PDF and LaTeX), its figures and the scripts that draw them
-├── benchmark/    the moving web pages the benchmark is rendered from
+├── benchmark/    the moving web pages the benchmark is rendered from, plus a worked example
 ├── data/         benchmark metadata and labels (screenshots are regenerated, see below)
 ├── src/          all code
 │   ├── generator/   renders the pages and records the true answer for every pair
