@@ -1,0 +1,25 @@
+{
+ "click": [
+  817.0,
+  294.0
+ ],
+ "planned_box": {
+  "x": 757,
+  "y": 274,
+  "width": 120,
+  "height": 40
+ },
+ "sprint_box_at_click": {
+  "x": 757,
+  "y": 362,
+  "width": 120,
+  "height": 40
+ },
+ "element_at_click": "olympic",
+ "hit_box": {
+  "x": 757,
+  "y": 274,
+  "width": 120,
+  "height": 40
+ }
+}

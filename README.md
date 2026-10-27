@@ -22,8 +22,8 @@ A computer-use agent captures a screenshot, plans for several seconds, and then 
 3. **A break-even formula predicts when a check is worth its cost.** Its check-or-skip decisions agreed with held-out data in 95% of cases.
 
 <p align="center">
-  <img src="paper/fig_hero.png" width="92%" alt="A stale click on the benchmark's news feed: the agent plans to save the top story, two new stories arrive, and the click lands on Save for a different story.">
-  <br><sub>A stale click from the benchmark. The agent plans to save the top story; two new stories arrive while it plans, and its click saves a different one.</sub>
+  <img src="paper/fig_hero.png" width="92%" alt="A stale click on a race registration page: a banner loads and the click meant for the Sprint lands on Register for the Olympic.">
+  <br><sub>A stale click. The agent plans on a screenshot taken as the page opens; a results banner loads and pushes the list down a row, so the click meant for the Sprint registers for the Olympic. Rendered from <code>paper/race/</code>.</sub>
 </p>
 
 ## Repository contents

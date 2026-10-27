@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Lupine Ridge Triathlon · Registration</title>
+<!-- Invented race and organizer, built only to illustrate a stale click. No network requests. -->
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Carlito,'DejaVu Sans',sans-serif;background:#f6f7f5;color:#1d2a26;width:1280px}
+  header{height:64px;background:#fff;border-bottom:1px solid #e3e6e1;display:flex;align-items:center;padding:0 40px;gap:40px}
+  .logo{font-weight:700;font-size:22px;color:#1f5e4b;letter-spacing:.01em}
+  .logo span{color:#e0773a}
+  nav{display:flex;gap:28px;font-size:16px;color:#4a5a54}
+  nav .on{color:#1f5e4b;font-weight:700;border-bottom:2px solid #1f5e4b;padding-bottom:4px}
+  main{width:860px;margin:28px 40px}
+  .banner{height:76px;margin-bottom:12px;border-radius:10px;background:#1f5e4b;color:#fff;display:flex;align-items:center;padding:0 24px;gap:16px;font-size:18px}
+  .banner b{font-size:19px}.banner .go{margin-left:auto;background:#fff;color:#1f5e4b;border-radius:6px;padding:8px 14px;font-weight:700;font-size:15px}
+  h1{font-size:28px;margin-bottom:4px}
+  .sub{color:#5d6b66;font-size:16px;margin-bottom:18px}
+  .race{height:76px;margin-bottom:12px;background:#fff;border:1px solid #e3e6e1;border-radius:10px;display:flex;align-items:center;padding:0 22px;gap:18px}
+  .race .name{font-weight:700;font-size:20px;width:130px}
+  .race .legs{color:#4a5a54;font-size:16px;flex:1}
+  .race .price{font-weight:700;font-size:18px;width:70px;text-align:right}
+  .race button{font-family:inherit;font-size:16px;font-weight:700;background:#e0773a;color:#fff;border:0;border-radius:8px;width:120px;height:40px}
+  .note{color:#5d6b66;font-size:15px;margin-top:6px}
+  aside{position:absolute;left:940px;top:92px;width:300px;background:#fff;border:1px solid #e3e6e1;border-radius:10px;padding:20px;font-size:15px;color:#4a5a54;line-height:1.5}
+  aside h3{color:#1d2a26;font-size:18px;margin-bottom:8px}
+</style></head>
+<body>
+<header><div class="logo">Lupine Ridge <span>Tri</span></div>
+  <nav><span>Course</span><span class="on">Registration</span><span>Results</span><span>Volunteer</span><span>FAQ</span></nav></header>
+<main id="main">
+  <h1>Choose your race</h1>
+  <div class="sub">Saturday, June 12, 2027 · Lupine Ridge Lake · Registration closes May 31</div>
+  <div class="race" data-race="olympic"><div class="name">Olympic</div><div class="legs">1.5 km swim · 40 km bike · 10 km run</div><div class="price">$145</div><button data-race="olympic">Register</button></div>
+  <div class="race" data-race="sprint"><div class="name">Sprint</div><div class="legs">750 m swim · 20 km bike · 5 km run</div><div class="price">$95</div><button data-race="sprint">Register</button></div>
+  <div class="race" data-race="aquabike"><div class="name">Aquabike</div><div class="legs">1.5 km swim · 40 km bike</div><div class="price">$120</div><button data-race="aquabike">Register</button></div>
+  <div class="race" data-race="relay"><div class="name">Relay</div><div class="legs">Teams of two or three, Olympic distance</div><div class="price">$210</div><button data-race="relay">Register</button></div>
+  <div class="note">Prices include timing chip, finisher medal and race-day photos.</div>
+</main>
+<aside><h3>Race day</h3>Packet pickup opens at 5:30 am. Transition closes at 6:45 am. Wetsuits are allowed below 24.5 °C water temperature.</aside>
+<script>
+  // The results banner arrives from a slow request after the page has rendered.
+  window.addEventListener('DOMContentLoaded', () => setTimeout(() => {
+    const b = document.createElement('div');
+    b.className = 'banner';
+    b.innerHTML = '<b>2026 results and race photos are live</b><span>Find your finish time and download your photos.</span><span class="go">See results</span>';
+    document.querySelector('.race').before(b);
+  }, 800));
+</script>
+</body></html>

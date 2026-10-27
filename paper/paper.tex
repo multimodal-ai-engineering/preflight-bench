@@ -22,15 +22,15 @@
 
 \begin{center}
 \rule{\textwidth}{1.1pt}\\[9pt]
-{\fontsize{17.5}{23}\selectfont\scshape What Does ``Now'' Mean to Your Computer-Use Agent?}\\[3pt]
-{\fontsize{13}{17}\selectfont\scshape Stale Screenshots, Page Loads, and Which Check to Run Before a Click}\\[6pt]
+{\fontsize{18}{23}\selectfont\bfseries What Does ``Now'' Mean to Your Computer-Use Agent?}\\[5pt]
+{\fontsize{12.5}{16}\selectfont Stale screenshots, page loads, and which check to run before a click}\\[7pt]
 \rule{\textwidth}{1.1pt}\\[14pt]
 {\bfseries Vasundra Srinivasan}\\[2pt]
 {\small Principal AI Engineer, Author---\textit{Data Engineering for Multimodal AI} (O'Reilly), Stanford School of Engineering\quad$\cdot$\quad October 2026}
 \end{center}
 
 \vspace{4pt}
-\begin{center}{\large\scshape Abstract}\end{center}
+\begin{center}{\large\bfseries Abstract}\end{center}
 \vspace{-6pt}
 \begin{list}{}{\leftmargin=0.55in\rightmargin=0.55in}\item[]
 Computer-use agents plan on a screenshot for several seconds and then click at a position on the screen; if the page has changed in the meantime, the click lands on an unintended element. Prior work treats the planning interval as the source of this risk. Measuring planned clicks on 31 public web pages, we find that the risk lies in page loading: 0.4\% of clicks planned on fully loaded pages became stale within 30 seconds, against 17\% of clicks planned in the first second after a page opened. Waiting about one second for network activity to stop removes most of this risk, yet the wait rules of eight of ten widely used open-source agents leave more than 1\% of clicks stale. Where a check before the click is still needed, a pixel comparison verifies the target's position as accurately as a frontier vision--language model at one eighth of the latency, and a 4B model matches the frontier model in verifying whether the previous action succeeded. We release a benchmark generator, a break-even formula for when a check pays, and three rules for agent developers: \repo.
@@ -41,12 +41,12 @@ Computer-use agents plan on a screenshot for several seconds and then click at a
 
 \section{Introduction}
 
-Consider an agent registering a user for a triathlon. It opens the race page, captures a screenshot immediately, and spends four seconds deciding to select \emph{Register} for the sprint distance. During those four seconds, a results banner finishes loading at the top of the page and shifts the content down by one row. The click lands on \emph{Register} for the Olympic distance. The agent's decision was correct for the screenshot it planned on; the page it acted on had changed. Figure~\ref{fig:hero} shows the same failure on a news feed from our benchmark.
+Consider an agent registering a user for a triathlon. It opens the race page, captures a screenshot immediately, and spends four seconds deciding to select \emph{Register} for the sprint distance. During those four seconds, a results banner finishes loading above the list of races and shifts the list down by one row. The click lands on \emph{Register} for the Olympic distance. The agent's decision was correct for the screenshot it planned on; the page it acted on had changed. Figure~\ref{fig:hero} shows this failure, rendered on a registration page built for this illustration.
 
 \begin{figure}[!b]
 \centering
 \includegraphics[width=\textwidth]{fig_hero.pdf}
-\caption{A stale click. The agent plans to save the top story of a news feed (left). While it plans, two new stories arrive at the top, and 6.5\,s later its click lands on the Save button of a different story (right). The click succeeds on the wrong item, and the page reports no error. Benchmark page with invented content; ground truth from the page's element tree.}
+\caption{A stale click. The agent plans on a screenshot taken as the page opens and chooses Register for the Sprint (left). A results banner loads 0.8\,s later and pushes the list down one row, so when the click lands at 4\,s, the same position holds Register for the Olympic (right); the Sprint button (blue) is one row lower. The race and organizer are invented; the element under the click is read from the rendered page, and the page and script are in the repository.}
 \label{fig:hero}
 \end{figure}
 
