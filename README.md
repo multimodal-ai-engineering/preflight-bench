@@ -22,15 +22,15 @@ A computer-use agent captures a screenshot, plans for several seconds, and then 
 4. **A break-even formula predicts when a check is worth its cost.** Its check-or-skip decisions agreed with held-out data in 95% of cases.
 
 <p align="center">
-  <img src="results/commercial/fig_commercial.png" width="90%" alt="Share of desktop home pages whose layout shifts within 6.5 seconds of the screenshot, by wait rule. After the network-idle wait with a 3-second cap, 52% of booking and buying pages shift, against 22% of an e-commerce sample and 8% of .gov pages.">
-  <br><sub>Desktop home pages in the HTTP Archive crawl of October 2026, measured without visiting any site: share whose layout shifts within 6.5 s of the screenshot, by wait rule (95% intervals). After the network-idle wait with a 3 s cap, 52% of booking and buying pages still shift, against 8% of .gov pages. Unrecorded time counts as no shift, so each point is a lower bound. Data and code in <code>src/commercial/</code>.</sub>
+  <img src="docs/assets/airline-page.png" width="90%" alt="One airline's home page as loaded by the HTTP Archive crawl: requests in flight and layout shifts over 22 seconds. A network-idle wait capped at 3 seconds takes its screenshot at 7.3 seconds; in the next 6.5 seconds the layout shifts seven times, with scores up to 0.45.">
+  <br><sub>One airline's home page as loaded by the HTTP Archive's desktop crawl of October 2026, the clearest case among the airlines; no site was visited. A network-idle wait capped at 3 s takes its screenshot at 7.3 s, before the network has gone quiet. In the 6.5 s an agent would then spend planning (shaded), the layout shifts seven times, with scores up to 0.45. Figure 1 of the paper, drawn by <code>src/commercial/fig_airline.py</code>.</sub>
 </p>
 
 ## Repository layout
 
 ```
 preflight-bench/
-├── benchmark/    the moving web pages the benchmark is rendered from, plus a worked example
+├── benchmark/    the moving web pages the benchmark is rendered from
 ├── data/         benchmark metadata and labels (screenshots are regenerated, see below), and per-page crawl rows
 ├── src/          all code
 │   ├── generator/   renders the pages and records the true answer for every pair
@@ -90,6 +90,11 @@ Model checks need a GPU for the open models (`src/colab/`) and an Anthropic API 
 ### Measure commercial pages without visiting them
 
 `src/commercial/` measures how long home pages keep loading and moving after an agent's wait, from the HTTP Archive's public crawl in BigQuery, so no commercial site is visited. The desktop query outputs from the study are in `data/commercial/`, so the analysis reruns without BigQuery; `src/commercial/README.md` has the commands, and the steps for running the queries on your own GCP project with a hard byte cap on every query.
+
+<p align="center">
+  <img src="results/commercial/fig_commercial.png" width="85%" alt="Share of desktop home pages whose layout shifts within 6.5 seconds of the screenshot, by wait rule: after the network-idle wait with a 3-second cap, 52% of booking and buying pages, 22% of an e-commerce sample and 8% of .gov pages.">
+  <br><sub>Share of desktop home pages whose layout shifts within 6.5 s of the screenshot, by wait rule (95% intervals). Unrecorded time counts as no shift, so each point is a lower bound.</sub>
+</p>
 
 ## Preregistration
 
