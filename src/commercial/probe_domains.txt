@@ -1,0 +1,10 @@
+yahoo.com
+imdb.com
+zillow.com
+reddit.com
+github.com
+stackoverflow.com
+linkedin.com
+pinterest.com
+microsoft.com
+craigslist.org

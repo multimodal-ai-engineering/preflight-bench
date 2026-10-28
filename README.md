@@ -6,7 +6,7 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/code-MIT-c49edb?style=flat-square" alt="Code license: MIT"></a>
   <a href="docs/DATA_CARD.md"><img src="https://img.shields.io/badge/data-CC%20BY%204.0-c49edb?style=flat-square" alt="Data license: CC BY 4.0"></a>
-  <a href="docs/"><img src="https://img.shields.io/badge/preregistered-4%20studies-c49edb?style=flat-square" alt="Preregistered"></a>
+  <a href="docs/"><img src="https://img.shields.io/badge/preregistered-5%20studies-c49edb?style=flat-square" alt="Preregistered"></a>
   <img src="https://img.shields.io/badge/python-3.11%20%7C%203.12-c49edb?style=flat-square" alt="Python 3.11 or 3.12">
 </p>
 
@@ -17,8 +17,9 @@ A computer-use agent captures a screenshot, plans for several seconds, and then 
 ## Findings
 
 1. **The risk lies in page loading; planning time has little effect.** On 31 public web pages, 0.4% of clicks planned on a fully loaded page became stale within 30 seconds. Within one second of a page opening, 17% did. Waiting until network activity stops (a median of 1.2 s) reduces this to 0.5%. The wait rules of eight of ten widely used open-source agents leave more than 1% of clicks stale.
-2. **Pixels verify *where*; models verify *what*.** A pixel comparison at the target detected 82% of stale clicks at a 4% false-alarm rate in 0.3 s, matching Claude Opus 5.5 with one third of the false alarms and one eighth of the latency. Small vision-language models (2B–4B) were unreliable at detecting moved targets, yet a 4B model matched Opus in judging whether the previous action succeeded.
-3. **A break-even formula predicts when a check is worth its cost.** Its check-or-skip decisions agreed with held-out data in 95% of cases.
+2. **Commercial pages keep loading after the wait.** Measured from the HTTP Archive's public crawl, without visiting any site: 15% of 65 desktop booking and buying home pages reached network idle within 3 s of DOM-ready, against 63% of 3,028 .gov home pages. After a network-idle wait capped at 3 s, 52% of the booking pages shifted their layout within 6.5 s, against 8% of the .gov pages (61% against 26% among pages recorded in full). On these pages the check before an irreversible click matters more. Mobile home pages did not show the same gap.
+3. **Pixels verify *where*; models verify *what*.** A pixel comparison at the target detected 82% of stale clicks at a 4% false-alarm rate in 0.3 s, matching Claude Opus 5.5 with one third of the false alarms and one eighth of the latency. Small vision-language models (2B–4B) were unreliable at detecting moved targets, yet a 4B model matched Opus in judging whether the previous action succeeded.
+4. **A break-even formula predicts when a check is worth its cost.** Its check-or-skip decisions agreed with held-out data in 95% of cases.
 
 <p align="center">
   <img src="docs/assets/stale-click.gif" width="80%" alt="A stale click on a race registration page: a results banner loads while the agent plans, and the click meant for the Sprint lands on Register for the Olympic.">
@@ -30,7 +31,7 @@ A computer-use agent captures a screenshot, plans for several seconds, and then 
 ```
 preflight-bench/
 ├── benchmark/    the moving web pages the benchmark is rendered from, plus a worked example
-├── data/         benchmark metadata and labels (screenshots are regenerated, see below)
+├── data/         benchmark metadata and labels (screenshots are regenerated, see below), and per-page crawl rows
 ├── src/          all code
 │   ├── generator/   renders the pages and records the true answer for every pair
 │   ├── anchored/    the pixel check
@@ -39,6 +40,7 @@ preflight-bench/
 │   ├── harness/     tuning, the break-even formula, every table and figure
 │   ├── live/        the live agent loop
 │   ├── realsite/    the read-only real-page collector and the ten agents' wait rules
+│   ├── commercial/  commercial pages measured from the HTTP Archive crawl in BigQuery
 │   └── colab/       GPU runners for the open models
 ├── results/      write-ups, tables, raw model answers and figures
 └── docs/         preregistrations, data card, third-party notes
@@ -85,9 +87,13 @@ Model checks need a GPU for the open models (`src/colab/`) and an Anthropic API 
 
 `src/realsite/collect_add.py` visits public pages read-only and records how often planned clicks become stale under different wait rules. Use only pages you are allowed to load, keep the delay between loads, and keep screenshots private: they contain third-party content. The study's own real-page screenshots are not released.
 
+### Measure commercial pages without visiting them
+
+`src/commercial/` measures how long home pages keep loading and moving after an agent's wait, from the HTTP Archive's public crawl in BigQuery, so no commercial site is visited. The desktop query outputs from the study are in `data/commercial/`, so the analysis reruns without BigQuery; `src/commercial/README.md` has the commands, and the steps for running the queries on your own GCP project with a hard byte cap on every query.
+
 ## Preregistration
 
-The study ran under four preregistrations, each committed and tagged before its data was collected (`prereg-v1`, `prereg-ext-v1`, `prereg-add-v1`, `prereg-agents-v1`), after two preregistered pilot waves. This public copy is a clean snapshot; the documents in `docs/` keep their original freeze dates. Paths in those documents refer to the study's original layout, where each folder now under `src/` sat at the top level (for example, `generator/` is now `src/generator/`), and `pages_full/` is now `benchmark/pages_full/`. Of eleven preregistered hypotheses, four held and seven were refuted; all are reported in the paper.
+The study ran under five preregistrations, each committed and tagged before its data was collected or, for the crawl, read (`prereg-v1`, `prereg-ext-v1`, `prereg-add-v1`, `prereg-agents-v1`, `prereg-com-v1`), after two preregistered pilot waves. This public copy is a clean snapshot; the documents in `docs/` keep their original freeze dates. Paths in those documents refer to the study's original layout, where each folder now under `src/` sat at the top level (for example, `generator/` is now `src/generator/`), and `pages_full/` is now `benchmark/pages_full/`; `commercial/` is now `src/commercial/`, with its results in `results/commercial/`. Of fourteen preregistered hypotheses, six held and eight were refuted; all are reported in the paper.
 
 ## Citation
 
@@ -102,6 +108,6 @@ The study ran under four preregistrations, each committed and tagged before its 
 
 ## License
 
-Code: MIT. Benchmark pages and generated data: CC BY 4.0. All page content is invented. PUSV is reimplemented from its paper's text only; see `docs/THIRD_PARTY.md`.
+Code: MIT. Benchmark pages and generated data: CC BY 4.0. All benchmark page content is invented. The per-page rows in `data/commercial/` are derived from the [HTTP Archive](https://httparchive.org) crawl, whose maintainers ask for attribution. PUSV is reimplemented from its paper's text only; see `docs/THIRD_PARTY.md`.
 
 This is independent research done outside any employment, with no funding and no non-public information.

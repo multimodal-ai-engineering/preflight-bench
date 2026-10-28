@@ -1,0 +1,6 @@
+crawl_rule,study_rule,crawl_shift_share,crawl_stale_pooled,study_measured_stale,n_pages
+S0,S0,0.5238,0.1251,0.1418,21
+S1,S1,0.2857,0.0723,0.0261,21
+S2,S2,0.2381,0.0617,0.0305,21
+S4,S4,0.1429,0.0406,0.0427,21
+S5u,S5,0.0476,0.0195,0.0045,21

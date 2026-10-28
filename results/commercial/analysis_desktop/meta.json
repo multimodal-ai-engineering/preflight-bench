@@ -1,0 +1,56 @@
+{
+  "client": "desktop",
+  "n_page_rows": 12597,
+  "probe_pages_removed": 1,
+  "pages_excluded": {
+    "no DOM ready": 165,
+    "fewer than 10 requests": 422
+  },
+  "requests_vs_reqTotal": {
+    "pages_compared": 12597,
+    "off_by_more_than_10pct": 1
+  },
+  "pages_without_request_rows": 0,
+  "calibration": {
+    "pooled": {
+      "a": 0.0089,
+      "b": 0.2307
+    },
+    "S1toS5": {
+      "a": 0.0083,
+      "b": 0.1536
+    }
+  },
+  "p_star_ordinary": 0.1023,
+  "p_star_irreversible": 0.0119,
+  "boot": 2000,
+  "seed": 20261027,
+  "exclude_censored": false,
+  "group_sizes": {
+    "ADS": 3867,
+    "BOOK": 66,
+    "BOOK:airline": 8,
+    "BOOK:car_rail_bus": 10,
+    "BOOK:lodging_travel": 13,
+    "BOOK:restaurants_food": 10,
+    "BOOK:retail": 15,
+    "BOOK:tickets_events": 10,
+    "BOOK@rank<=1000": 11,
+    "BOOK@rank<=10000": 26,
+    "BOOK@rank<=100000": 25,
+    "BOOK@rank<=1000000": 4,
+    "GOV": 3406,
+    "GOV@rank<=1000": 1,
+    "GOV@rank<=10000": 20,
+    "GOV@rank<=100000": 301,
+    "GOV@rank<=1000000": 3084,
+    "MEDIA": 10,
+    "MEDIA:news_sports_weather": 10,
+    "SHOP": 5000,
+    "SHOP@rank<=1000": 5,
+    "SHOP@rank<=10000": 27,
+    "SHOP@rank<=100000": 294,
+    "SHOP@rank<=1000000": 4674,
+    "STUDY31": 21
+  }
+}

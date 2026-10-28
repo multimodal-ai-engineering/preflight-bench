@@ -15,3 +15,5 @@
 **License.** Data CC BY 4.0, code MIT. Released with the paper; regenerate with `src/generator/make_full.py` (see the README).
 
 **Separate, not part of the benchmark.** A read-only real-site set (public pages, no clicks) is collected for an in-the-wild comparison. It contains third-party content, is never released and never pooled.
+
+**Commercial-page crawl rows (separate, not part of the benchmark).** `data/commercial/` holds the per-page query outputs of the commercial-page study (`docs/PREREG_COMMERCIAL.md`): one row per desktop home page from the HTTP Archive crawl of October 2026, with load timings, every layout shift and every request's start and end. They are derived from the HTTP Archive's public data, whose maintainers ask for attribution, and contain no screenshots or page content. The paper names no individual site.

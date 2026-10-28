@@ -1,0 +1,24 @@
+{
+  "crawl_date": "2026-10-01",
+  "client": "desktop",
+  "cat_ecom": "Ecommerce",
+  "cat_ads": "Advertising",
+  "shifts_key": "_LayoutShifts",
+  "shift_time": "time",
+  "shift_score": "score",
+  "req_start": "_all_start",
+  "req_end": "_all_end",
+  "req_status": "response.status",
+  "gov_permille": 1000,
+  "ecom_permille": 40,
+  "ads_permille": 15,
+  "cap_gb": {
+    "00": 20,
+    "01": 60,
+    "02": 150,
+    "10": 700,
+    "11": 4500
+  },
+  "probe_reviewed": true,
+  "requests_approved": true
+}

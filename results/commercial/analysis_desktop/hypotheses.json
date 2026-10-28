@@ -1,0 +1,95 @@
+{
+  "C1": {
+    "test": "after the network-idle screenshot (3 s cap), BOOK pages shift within 6.5 s more often than GOV pages",
+    "testable": true,
+    "n_pages": [
+      65,
+      3028
+    ],
+    "estimate": 0.4455,
+    "lo": 0.3237,
+    "hi": 0.5686,
+    "ci_above_0": true,
+    "censored_share": [
+      0.3692,
+      0.9055
+    ],
+    "drop_censored": {
+      "test": "after the network-idle screenshot (3 s cap), BOOK pages shift within 6.5 s more often than GOV pages",
+      "testable": true,
+      "n_pages": [
+        41,
+        286
+      ],
+      "estimate": 0.3511,
+      "lo": 0.1977,
+      "hi": 0.5009,
+      "ci_above_0": true,
+      "censored_share": [
+        0.3692,
+        0.9055
+      ]
+    },
+    "held": true
+  },
+  "C2": {
+    "test": "BOOK pages reach 500 ms of network quiet within 3 s of DOM ready less often than GOV pages",
+    "testable": true,
+    "n_pages": [
+      65,
+      3028
+    ],
+    "estimate": 0.4806,
+    "lo": 0.385,
+    "hi": 0.5636,
+    "ci_above_0": true,
+    "held": true
+  },
+  "C1_rank_reweighted": {
+    "test": "secondary: C1 with GOV reweighted to BOOK's rank buckets (buckets present in both)",
+    "n_book_pages": 65,
+    "estimate": 0.4336,
+    "lo": 0.2976,
+    "hi": 0.5634,
+    "ci_above_0": true
+  },
+  "C1_SHOP": {
+    "test": "secondary: C1 with SHOP in place of BOOK",
+    "testable": true,
+    "n_pages": [
+      4972,
+      3028
+    ],
+    "estimate": 0.1424,
+    "lo": 0.1271,
+    "hi": 0.1565,
+    "ci_above_0": true,
+    "censored_share": [
+      0.5231,
+      0.9055
+    ]
+  },
+  "C2_SHOP": {
+    "test": "secondary: C2 with SHOP in place of BOOK",
+    "testable": true,
+    "n_pages": [
+      4972,
+      3028
+    ],
+    "estimate": 0.4407,
+    "lo": 0.4212,
+    "hi": 0.4601,
+    "ci_above_0": true
+  },
+  "C3": {
+    "test": "transfer: on the study's own sites, a crawl shift after DOM ready goes with the burst the study measured (Spearman rho > 0)",
+    "n_pages": 20,
+    "estimate": -0.1228,
+    "lo": -0.5614,
+    "hi": 0.3211,
+    "degenerate_resamples_scored_0": 0,
+    "testable": true,
+    "ci_above_0": false,
+    "held": false
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "pages": {
+    "numBytes": "1777474320966896",
+    "numRows": "3341630032",
+    "timePartitioning": {
+      "type": "DAY",
+      "field": "date",
+      "requirePartitionFilter": true
+    },
+    "clustering": {
+      "fields": [
+        "client",
+        "is_root_page",
+        "rank",
+        "page"
+      ]
+    },
+    "lastModifiedTime": "1792464088454"
+  },
+  "requests": {
+    "numBytes": "12350448093856433",
+    "numRows": "317963384636",
+    "timePartitioning": {
+      "type": "DAY",
+      "field": "date",
+      "requirePartitionFilter": true
+    },
+    "clustering": {
+      "fields": [
+        "client",
+        "is_root_page",
+        "type",
+        "rank"
+      ]
+    },
+    "lastModifiedTime": "1792423043441"
+  }
+}
