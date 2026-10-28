@@ -14,7 +14,7 @@ This folder measures how long commercial home pages keep loading and moving afte
 | `tests/test_analyze.py` | checks `analyze.py` on inputs with known answers |
 | `validate_proxy.py` | builds `inputs/validation_visits.csv` from the real-page visit logs (the logs are not public; the derived file is included) |
 | `spot_check.py` | recomputes every rule by hand for three booking and three .gov pages |
-| `fig_airline.py` | the paper's Figure 1: one airline's home page from the crawl |
+| `fig_airline.py` | one page's crawl record over time: requests in flight, layout shifts, the capped-wait screenshot |
 | `fig_commercial.py` | the paper's Figure 3 |
 | `run_exploratory.py` | the exploratory runs: mobile home pages and desktop inner pages |
 

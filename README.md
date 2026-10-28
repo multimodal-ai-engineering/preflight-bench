@@ -22,8 +22,8 @@ A computer-use agent captures a screenshot, plans for several seconds, and then 
 4. **A break-even formula predicts when a check is worth its cost.** Its check-or-skip decisions agreed with held-out data in 95% of cases.
 
 <p align="center">
-  <img src="docs/assets/airline-page.png" width="90%" alt="One airline's home page as loaded by the HTTP Archive crawl: requests in flight and layout shifts over 22 seconds. A network-idle wait capped at 3 seconds takes its screenshot at 7.3 seconds; in the next 6.5 seconds the layout shifts seven times, with scores up to 0.45.">
-  <br><sub>One airline's home page as loaded by the HTTP Archive's desktop crawl of October 2026, the clearest case among the airlines; no site was visited. A network-idle wait capped at 3 s takes its screenshot at 7.3 s, before the network has gone quiet. In the 6.5 s an agent would then spend planning (shaded), the layout shifts seven times, with scores up to 0.45. Figure 1 of the paper, drawn by <code>src/commercial/fig_airline.py</code>.</sub>
+  <img src="docs/assets/airline-page.png" width="90%" alt="Two screenshots of an airline home page. Left: the flight search form, with the planned click on the search button. Right: 6.5 seconds later a credit-card banner has pushed the form down, and the same point is on a loyalty-points checkbox.">
+  <br><sub>One airline's home page in desktop Chromium, captured by a script on 27 October 2026; nothing was typed or submitted, and brand names are blurred. (a) The screenshot taken when a network-idle wait reaches its 3 s cap; the agent plans a click on the search button. (b) Within 0.8 s a credit-card offer is inserted under the menu and the form moves down 52 px; when the click is sent 6.5 s later, the same point is on a checkbox that switches the search to loyalty points. The HTTP Archive crawl of this page on 1 October shows the same pattern: the capped wait ends at 3.5 s, the layout shifts 1.3 s later, and the network goes quiet only at 8.1 s. Figure 1 of the paper.</sub>
 </p>
 
 ## Repository layout
