@@ -22,8 +22,8 @@ A computer-use agent captures a screenshot, plans for several seconds, and then 
 4. **A break-even formula predicts when a check is worth its cost.** Its check-or-skip decisions agreed with held-out data in 95% of cases.
 
 <p align="center">
-  <img src="docs/assets/stale-click.gif" width="80%" alt="A stale click on a race registration page: a results banner loads while the agent plans, and the click meant for the Sprint lands on Register for the Olympic.">
-  <br><sub>A stale click. The agent plans on a screenshot taken as the page opens; a results banner loads and pushes the list down a row, so the click meant for the Sprint registers for the Olympic. Page and scripts in <code>benchmark/examples/race/</code>.</sub>
+  <img src="results/commercial/fig_commercial.png" width="90%" alt="Share of desktop home pages whose layout shifts within 6.5 seconds of the screenshot, by wait rule. After the network-idle wait with a 3-second cap, 52% of booking and buying pages shift, against 22% of an e-commerce sample and 8% of .gov pages.">
+  <br><sub>Desktop home pages in the HTTP Archive crawl of October 2026, measured without visiting any site: share whose layout shifts within 6.5 s of the screenshot, by wait rule (95% intervals). After the network-idle wait with a 3 s cap, 52% of booking and buying pages still shift, against 8% of .gov pages. Unrecorded time counts as no shift, so each point is a lower bound. Data and code in <code>src/commercial/</code>.</sub>
 </p>
 
 ## Repository layout
