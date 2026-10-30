@@ -14,4 +14,5 @@ preferred-citation:
     - family-names: Srinivasan
       given-names: Vasundra
   year: 2026
-  url: "https://github.com/multimodal-ai-engineering/preflight-bench"
+  journal: "arXiv preprint arXiv:2610.39282"
+  url: "https://arxiv.org/abs/2610.39282"

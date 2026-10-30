@@ -4,13 +4,15 @@
 </picture>
 
 <p align="center">
+  <a href="https://arxiv.org/abs/2610.39282"><img src="https://img.shields.io/badge/paper-arXiv%3A2610.39282-c49edb?style=flat-square" alt="Paper: arXiv 2610.39282"></a>
+  <a href="https://huggingface.co/datasets/multimodal-ai-engineering/preflight-bench"><img src="https://img.shields.io/badge/dataset-Hugging%20Face%20(Lance)-c49edb?style=flat-square" alt="Dataset on Hugging Face, in Lance format"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/code-MIT-c49edb?style=flat-square" alt="Code license: MIT"></a>
   <a href="docs/DATA_CARD.md"><img src="https://img.shields.io/badge/data-CC%20BY%204.0-c49edb?style=flat-square" alt="Data license: CC BY 4.0"></a>
   <a href="docs/"><img src="https://img.shields.io/badge/preregistered-5%20studies-c49edb?style=flat-square" alt="Preregistered"></a>
   <img src="https://img.shields.io/badge/python-3.11%20%7C%203.12-c49edb?style=flat-square" alt="Python 3.11 or 3.12">
 </p>
 
-Code and data for the paper *What Does “Now” Mean to Your Computer-Use Agent? Stale screenshots, page loads, and which check to run before a click* (Srinivasan, 2026): the benchmark generator, the checks, the real-page measurement code, the preregistrations and the results.
+Code and data for the paper *What Does “Now” Mean to Your Computer-Use Agent? Stale screenshots, page loads, and which check to run before a click* ([Srinivasan, 2026](https://arxiv.org/abs/2610.39282); [PDF on arXiv](https://arxiv.org/pdf/2610.39282)): the benchmark generator, the checks, the real-page measurement code, the preregistrations and the results.
 
 A computer-use agent captures a screenshot, plans for several seconds, and then clicks at a position on the screen. If the page changes during that interval, the click lands on an unintended element. Prior work treats the planning interval as the source of risk. This study measures when planned clicks become stale on real pages and evaluates which form of perception should verify the screen immediately before a click.
 
@@ -43,7 +45,8 @@ preflight-bench/
 │   ├── commercial/  commercial pages measured from the HTTP Archive crawl in BigQuery
 │   └── colab/       GPU runners for the open models
 ├── results/      write-ups, tables, raw model answers and figures
-└── docs/         preregistrations, data card, third-party notes
+├── docs/         preregistrations, data card, third-party notes
+└── lance_quickstart.py   the pixel check on the Hugging Face copy of the benchmark, read with LanceDB
 ```
 
 ## Quick start
@@ -62,6 +65,39 @@ uv run python quickstart.py
 ```
 
 Each pair contains four screenshots (two at planning time, two 6.5 s later), the box the agent planned to click, and the ground truth recorded from the page at the moment of the click.
+
+### Load the data from Hugging Face
+
+The full benchmark is on the [Hugging Face Hub](https://huggingface.co/datasets/multimodal-ai-engineering/preflight-bench) in Lance format, so you can read it with LanceDB without generating it:
+
+```python
+import lancedb
+
+db = lancedb.connect("hf://datasets/multimodal-ai-engineering/preflight-bench/data")
+clicks = db.open_table("click_pairs")        # 4,608 planned clicks: is the click still good?
+outcomes = db.open_table("outcome_pairs")    # 3,600 actions: did the last action work?
+answers = db.open_table("checker_answers")   # 31,610 answers from the checks in the paper
+```
+
+To run the pixel check on those pairs straight from the Hub, with the paper's frozen thresholds:
+
+```bash
+uv run --with lancedb python lance_quickstart.py                      # 200 dev pairs, about a minute
+uv run --with lancedb python lance_quickstart.py --n 0                # every dev pair
+uv run --with lancedb python lance_quickstart.py --out my_check.csv   # also write a CSV for bench.score
+```
+
+LanceDB reads only the rows and frames it needs. To test your own check, replace the call to `check` in `run()`.
+
+### Send your results
+
+Run your check on `click_pairs` and `outcome_pairs`, write one row per pair and question in the CSV format described in [`src/bench/score.py`](src/bench/score.py), and score it on the dev split:
+
+```bash
+uv run python -m bench.score my_check.csv --split dev
+```
+
+Then open an issue with the CSV and a short description of the check (model or method, thresholds, time per check). We score it on the test split with the same script, and every check we score is credited in the next version of the paper.
 
 ### Regenerate the full benchmark
 
@@ -104,10 +140,13 @@ The study ran under five preregistrations, each committed and tagged before its 
 
 ```bibtex
 @article{srinivasan2026preflight,
-  author = {Srinivasan, Vasundra},
-  title  = {What Does ``Now'' Mean to Your Computer-Use Agent? Stale Screenshots, Page Loads, and Which Check to Run Before a Click},
-  year   = {2026},
-  url    = {https://github.com/multimodal-ai-engineering/preflight-bench}
+  author        = {Srinivasan, Vasundra},
+  title         = {What Does ``Now'' Mean to Your Computer-Use Agent? Stale Screenshots, Page Loads, and Which Check to Run Before a Click},
+  journal       = {arXiv preprint arXiv:2610.39282},
+  year          = {2026},
+  eprint        = {2610.39282},
+  archivePrefix = {arXiv},
+  url           = {https://arxiv.org/abs/2610.39282}
 }
 ```
 
