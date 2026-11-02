@@ -6,7 +6,7 @@
 
 **Pairs.** Action pairs: two planning frames 200 ms apart, two current frames 200 ms apart 6.5 s later, the target's planned box and click point, and (dev, or private for test) the truth from the page: whether the planned click still lands, the target's box, a 4 px hit mask, look-alikes, dialogs, at nine moments after the current frame. Worked pairs: frames before and 6.7 s after a click, two frames each, the planner's one-sentence expected effect, and where that effect would appear.
 
-**Splits.** By template: variants 0–1 are dev (public, with labels), variants 2–3 are test (labels in `private/`, scored by `src/bench/score.py`). IDs are opaque.
+**Splits.** By template: variants 0–1 are dev and variants 2–3 are test. Every threshold in the paper was frozen on dev before test labels were read. In this repository the test labels sit in `private/` and are scored by `src/bench/score.py`; the Hugging Face release includes labels for both splits. IDs are opaque.
 
 **Labels.** From the DOM and the canvas's render state at the current frame, never from the seeded event's name. Background motion near and away from the target, a second event after the current frame in 25% of pairs.
 
